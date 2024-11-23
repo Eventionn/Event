@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_container_events
+    ports:
+      - "5003:5432" # Porta local mapeada para a porta padrão do PostgreSQL
+    environment:
+      POSTGRES_USER: databaselocal # Substitua pelo seu usuário
+      POSTGRES_PASSWORD: databaselocal # Substitua pela sua senha
+      POSTGRES_DB: databaselocal # Nome da base de dados
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistência de dados
+
+volumes:
+  postgres_data:

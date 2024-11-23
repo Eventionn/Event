@@ -1,0 +1,958 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Event API",
+    "version": "1.0.0",
+    "description": "This API allows users to manage events and address events."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5002",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/api/events": {
+      "get": {
+        "summary": "Get all events",
+        "operationId": "getAllEvents",
+        "tags": ["Events"],
+        "responses": {
+          "200": {
+            "description": "A list of events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new event",
+        "operationId": "createEvent",
+        "tags": ["Events"],
+        "requestBody": {
+          "description": "Event to create",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventInput"
+              },
+              "example": {
+                "name": "Tech Conference 2024",
+                "description": "A cutting-edge conference on emerging tech trends.",
+                "startAt": "2024-05-15T09:00:00Z",
+                "endAt": "2024-05-16T17:00:00Z",
+                "price": 199.99,
+                "eventstatus_id": "44444444-4444-4444-4444-444444444444"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                },
+                "example": {
+                  "eventID": "f8d99d7e-5cfd-42d7-9fdd-c33f33c9a413",
+                  "name": "Tech Conference 2024",
+                  "description": "A cutting-edge conference on emerging tech trends.",
+                  "startAt": "2024-05-15T09:00:00Z",
+                  "endAt": "2024-05-16T17:00:00Z",
+                  "price": 199.99,
+                  "eventstatus_id": "44444444-4444-4444-4444-444444444444"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Missing required fields"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/events/{id}": {
+      "get": {
+        "summary": "Get a specific event by ID",
+        "operationId": "getEventById",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the event",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a specific event by ID",
+        "operationId": "updateEvent",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the event",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated event data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventInput"
+              },
+              "example": {
+                "name": "Tech Conference 2024 (Updated)",
+                "description": "An updated cutting-edge conference on emerging tech trends.",
+                "startAt": "2024-05-15T10:00:00Z",
+                "endAt": "2024-05-16T18:00:00Z",
+                "price": 249.99,
+                "eventstatus_id": "44444444-4444-4444-4444-444444444444"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a specific event by ID",
+        "operationId": "deleteEvent",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the event to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Event deleted successfully"
+          },
+          "404": {
+            "description": "Event not found"
+          }
+        }
+      }
+    },
+    "/api/addressEvents": {
+      "get": {
+        "summary": "Get all address events",
+        "operationId": "getAllAddressEvents",
+        "tags": ["AddressEvents"],
+        "responses": {
+          "200": {
+            "description": "A list of address events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AddressEvent"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new address event",
+        "operationId": "createAddressEvent",
+        "tags": ["AddressEvents"],
+        "requestBody": {
+          "description": "Address event to create",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressEventInput"
+              },
+              "example": {
+                "event_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+                "roadNumber": 485,
+                "postCode": "94043",
+                "road": "Mountain View",
+                "localtown": "California"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Address event created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressEvent"
+                },
+                "example": {
+                  "id": "b3f5d0a9-22a3-45c0-804b-b1e2b028953b",
+                  "event_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+                  "roadNumber": 485,
+                  "postCode": "94043",
+                  "road": "Mountain View",
+                  "localtown": "California"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Missing required fields"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/addressEvents/{id}": {
+      "get": {
+        "summary": "Get a specific address event by ID",
+        "operationId": "getAddressEventById",
+        "tags": ["AddressEvents"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the address event",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Address event found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressEvent"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Address event not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a specific address event by ID",
+        "operationId": "updateAddressEvent",
+        "tags": ["AddressEvents"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the address event",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated address event data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressEventInput"
+              },
+              "example": {
+                "event_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+                "roadNumber": 485,
+                "postCode": "94043",
+                "road": "Mountain View",
+                "localtown": "California"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Address event updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddressEvent"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Address event not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a specific address event by ID",
+        "operationId": "deleteAddressEvent",
+        "tags": ["AddressEvents"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the address event to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Address event deleted successfully"
+          },
+          "404": {
+            "description": "Address event not found"
+          }
+        }
+      }
+    },
+    "/api/routesEvents": {
+      "get": {
+        "summary": "Get all routes events",
+        "operationId": "getAllRoutesEvents",
+        "tags": ["RoutesEvents"],
+        "responses": {
+          "200": {
+            "description": "A list of routes events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoutesEvent"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new routes event",
+        "operationId": "createRoutesEvent",
+        "tags": ["RoutesEvents"],
+        "requestBody": {
+          "description": "Routes event to create",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoutesEventInput"
+              },
+              "example": {
+                "latitude": 37.7749,
+                "longitude": -122.4194,
+                "order": 1,
+                "addressEvent_id": "dddddddd-dddd-dddd-dddd-dddddddddddd"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Routes event created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutesEvent"
+                },
+                "example": {
+                  "routeID": "f8d99d7e-5cfd-42d7-9fdd-c33f33c9a413",
+                  "latitude": 37.7749,
+                  "longitude": -122.4194,
+                  "order": 1,
+                  "addressEvent_id": "dddddddd-dddd-dddd-dddd-dddddddddddd"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Missing required fields"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/routesEvents/{id}": {
+      "get": {
+        "summary": "Get a specific routes event by ID",
+        "operationId": "getRoutesEventById",
+        "tags": ["RoutesEvents"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the routes event",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Routes event found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutesEvent"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Routes event not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a specific routes event by ID",
+        "operationId": "updateRoutesEvent",
+        "tags": ["RoutesEvents"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the routes event",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated routes event data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoutesEventInput"
+              },
+              "example": {
+                "latitude": 37.7749,
+                "longitude": -122.4194,
+                "order": 2,
+                "addressEvent_id": "dddddddd-dddd-dddd-dddd-dddddddddddd"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Routes event updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutesEvent"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Routes event not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a specific routes event by ID",
+        "operationId": "deleteRoutesEvent",
+        "tags": ["RoutesEvents"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the routes event to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Routes event deleted successfully"
+          },
+          "404": {
+            "description": "Routes event not found"
+          }
+        }
+      }
+    },
+    "/api/eventStatus": {
+      "get": {
+        "summary": "Get all event statuses",
+        "operationId": "getAllEventStatuses",
+        "tags": ["EventStatus"],
+        "responses": {
+          "200": {
+            "description": "A list of event statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventStatus"
+                  }
+                },
+                "example": [
+                  {
+                    "eventStatusID": "11111111-1111-1111-1111-111111111111",
+                    "status": "Scheduled"
+                  },
+                  {
+                    "eventStatusID": "22222222-2222-2222-2222-222222222222",
+                    "status": "Completed"
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "No event statuses found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new event status",
+        "operationId": "createEventStatus",
+        "tags": ["EventStatus"],
+        "requestBody": {
+          "description": "Data for creating a new event status",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventStatusInput"
+              },
+              "example": {
+                "status": "In Progress"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event status created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventStatus"
+                },
+                "example": {
+                  "eventStatusID": "33333333-3333-3333-3333-333333333333",
+                  "status": "In Progress"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required field: status"
+          },
+          "500": {
+            "description": "Error creating event status"
+          }
+        }
+      }
+    },
+    "/api/eventStatus/{id}": {
+      "get": {
+        "summary": "Get an event status by ID",
+        "operationId": "getEventStatusById",
+        "tags": ["EventStatus"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the event status",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The event status object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventStatus"
+                },
+                "example": {
+                  "eventStatusID": "44444444-4444-4444-4444-444444444444",
+                  "status": "Cancelled"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event status not found"
+          },
+          "500": {
+            "description": "Error fetching event status"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an event status",
+        "operationId": "updateEventStatus",
+        "tags": ["EventStatus"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the event status to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated event status data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventStatusInput"
+              },
+              "example": {
+                "status": "Postponed"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventStatus"
+                },
+                "example": {
+                  "eventStatusID": "55555555-5555-5555-5555-555555555555",
+                  "status": "Postponed"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event status not found"
+          },
+          "500": {
+            "description": "Error updating event status"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an event status",
+        "operationId": "deleteEventStatus",
+        "tags": ["EventStatus"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the event status to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Event status deleted successfully"
+          },
+          "404": {
+            "description": "Event status not found"
+          },
+          "500": {
+            "description": "Error deleting event status"
+          }
+        }
+      }
+    }
+  
+  },
+  
+  "components": {
+    "schemas": {
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the event"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the event"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the event"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date and time of the event"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End date and time of the event"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price of the event"
+          },
+          "eventstatus_id": {
+            "type": "string",
+            "description": "Event status ID"
+          }
+        }
+      },
+      "EventInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "startAt",
+          "endAt",
+          "price",
+          "eventstatus_id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the event"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the event"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date and time of the event"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End date and time of the event"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price of the event"
+          },
+          "eventstatus_id": {
+            "type": "string",
+            "description": "Event status ID"
+          }
+        }
+      },
+      "AddressEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the address event"
+          },
+          "event_id": {
+            "type": "string",
+            "description": "ID of the associated event"
+          },
+          "localtown": {
+            "type": "string",
+            "description": "Local town for the event"
+          },
+          "postCode": {
+            "type": "string",
+            "description": "Postal code for the event address"
+          },
+          "roadNumber": {
+            "type": "string",
+            "description": "Road number where the event is located"
+          },
+          "road": {
+            "type": "string",
+            "description": "Road where the event is located"
+          }
+        }
+      },
+      "AddressEventInput": {
+        "type": "object",
+        "required": [
+          "event_id",
+          "localtown",
+          "postCode",
+          "roadNumber",
+          "road"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "ID of the associated event"
+          },
+          "localtown": {
+            "type": "string",
+            "description": "Address for the event"
+          },
+          "postCode": {
+            "type": "string",
+            "description": "Postal code for the event address"
+          },
+          "roadNumber": {
+            "type": "string",
+            "description": "City where the event is located"
+          },
+          "road": {
+            "type": "string",
+            "description": "State where the event is located"
+          }
+        }
+      },
+      "RoutesEvent": {
+        "type": "object",
+        "properties": {
+          "routeID": {
+            "type": "string",
+            "description": "ID of the route event"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Latitude of the route"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude of the route"
+          },
+          "order": {
+            "type": "integer",
+            "description": "Order of the route in the sequence"
+          },
+          "addressEvent_id": {
+            "type": "string",
+            "description": "ID of the associated address event"
+          }
+        }
+      },
+      "RoutesEventInput": {
+        "type": "object",
+        "required": [
+          "latitude",
+          "longitude",
+          "order",
+          "addressEvent_id"
+        ],
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "Latitude of the route"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude of the route"
+          },
+          "order": {
+            "type": "integer",
+            "description": "Order of the route in the sequence"
+          },
+          "addressEvent_id": {
+            "type": "string",
+            "description": "ID of the associated address event"
+          }
+        }
+      },
+      "EventStatus": {
+        "type": "object",
+        "properties": {
+          "eventStatusID": {
+            "type": "string",
+            "example": "11111111-1111-1111-1111-111111111111"
+          },
+          "status": {
+            "type": "string",
+            "example": "Scheduled"
+          }
+        }
+      },
+      "EventStatusInput": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "Completed"
+          }
+        },
+        "required": ["status"]
+      }
+    }
+  }
+}

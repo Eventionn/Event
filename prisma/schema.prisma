@@ -1,0 +1,58 @@
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+model Event {
+  eventID        String      @id @default(uuid()) @db.Uuid
+  name           String      @db.VarChar(40)
+  description    String      @db.Text
+  startAt        DateTime
+  endAt          DateTime
+  price          Float
+  createdAt      DateTime    @default(now())
+  eventStatus    EventStatus @relation(fields: [eventstatus_id], references: [eventStatusID])
+  eventstatus_id String      @db.Uuid
+  addressEvents  AddressEvent[]
+
+  @@map("Events") 
+}
+
+model EventStatus {
+  eventStatusID String  @id @default(uuid()) @db.Uuid
+  status        String  @db.VarChar(20)
+  events        Event[]
+
+  @@map("EventStatus") 
+}
+
+model AddressEvent {
+  addressEstablishmentID String        @id @default(uuid()) @db.Uuid
+  road                   String        @db.VarChar(20)
+  roadNumber             Int
+  postCode               String        @db.VarChar(20)
+  localtown              String        @db.VarChar(100)
+  event                  Event         @relation(fields: [event_id], references: [eventID])
+  event_id               String        @db.Uuid
+  routes                 RoutesEvent[]
+
+  @@map("AddressEvents")
+}
+
+model RoutesEvent {
+  routeID         String       @id @default(uuid()) @db.Uuid
+  latitude        Float
+  longitude       Float
+  order           Int
+  addressEvent    AddressEvent @relation(fields: [addressEvent_id], references: [addressEstablishmentID])
+  addressEvent_id String       @db.Uuid
+
+  @@map("RoutesEvents")
+}

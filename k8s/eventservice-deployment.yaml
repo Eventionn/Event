@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventservice
+  template:
+    metadata:
+      labels:
+        app: eventservice
+    spec:
+      containers:
+      - name: eventservice
+        image: pedromartins70/eventservice:latest 
+        ports:
+        - containerPort: 5002
+        env:
+          - name: DB_HOST
+            value: "eventservice-db-service"  
+          - name: DB_PORT
+            value: "5432"                  
+          - name: DB_USER
+            value: "eventservice_user"      
+          - name: DB_PASSWORD
+            value: "eventservice_pass"      
+          - name: DB_NAME
+            value: "eventservice_db" 

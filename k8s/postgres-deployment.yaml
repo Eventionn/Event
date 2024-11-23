@@ -1,0 +1,58 @@
+# StatefulSet para gerenciar o PostgreSQL
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eventservice-db
+  labels:
+    app: eventservice-db
+spec:
+  serviceName: "eventservice-db-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventservice-db
+  template:
+    metadata:
+      labels:
+        app: eventservice-db
+    spec:
+      containers:
+        - name: eventservice-db
+          image: postgres:alpine 
+          env:
+            - name: POSTGRES_USER
+              value: "eventservice_user"      
+            - name: POSTGRES_PASSWORD
+              value: "eventservice_pass"      
+            - name: POSTGRES_DB
+              value: "eventservice_db"    # Nome DB
+          ports:
+            - containerPort: 5432     # Porta padrão do PostgreSQL
+          volumeMounts:
+            - name: eventservice-db-data
+              mountPath: /var/lib/postgresql/data # Diretório de dados
+  volumeClaimTemplates:
+    - metadata:
+        name: eventservice-db-data
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 2Gi
+
+---
+# Serviço para expor o PostgreSQL dentro e fora do cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventservice-db-service
+  labels:
+    app: eventservice-db
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5432           # Porta do serviço
+      targetPort: 5432     # Porta no container
+  selector:
+    app: eventservice-db        # Seleciona o StatefulSet pelo label
