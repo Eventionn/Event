@@ -12,6 +12,17 @@ const eventStatusService = {
   },
 
   /**
+ * Get a specific event status by status name (e.g., "pendente" or "aprovado")
+ * @param {string} status - The status name to search for
+ * @returns {Promise<Object|null>} The event status object or null if not found
+ */
+  async getEventStatusByStatus(status) {
+    return prisma.eventStatus.findFirst({
+      where: { status },
+    });
+  },
+
+  /**
    * Get a specific event status by eventStatusID
    * @param {string} eventStatusID - The ID of the event status to fetch
    * @returns {Promise<Object|null>} The event status object or null if not found

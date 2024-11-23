@@ -1,4 +1,5 @@
 import addressEventService from '../services/addressEventService.js';
+import axios from 'axios';
 
 const addressEventController = {
 
@@ -59,6 +60,12 @@ const addressEventController = {
       // Verificar campos obrigatórios
       if (!road || !roadNumber || !postCode || !localtown || !event_id) {
         return res.status(400).json({ message: 'Missing required fields' });
+      }
+
+      const localtownExists = await axios.get(`http://locationservice:5005/api/location/${localtown}`);
+
+      if (!localtownExists) {
+        return res.status(404).json({ message: 'Location not found' });
       }
 
       const newAddressEvent = await addressEventService.createAddressEvent(req.body);

@@ -20,6 +20,24 @@ const eventService = {
     });
   },
 
+  //   /**
+  //  * Get all events
+  //  * @returns {Promise<Array>} List of user events
+  //  */
+  //   async getUserEvents(userId) {
+  //     return prisma.event.findMany({
+  //       where: {userId},
+  //       include: {
+  //         eventStatus: true,
+  //         addressEvents: {
+  //           include: {
+  //             routes: true,
+  //           },
+  //         },
+  //       },
+  //     });
+  //   },
+
   /**
    * Get a specific event by ID
    * @param {string} eventId - The ID of the event to fetch
@@ -60,6 +78,21 @@ const eventService = {
     return prisma.event.update({
       where: { eventID: eventId },
       data: eventData,
+    });
+  },
+
+  /**
+   * Update the status of an event by ID
+   * @param {string} eventId - The ID of the event to update
+   * @param {string} newEventStatusId - The new event status ID to set
+   * @returns {Promise<Object>} The updated event object
+   */
+  async updateEventStatus(eventId, newEventStatusId) {
+    return prisma.event.update({
+      where: { eventID: eventId },
+      data: {
+        eventstatus_id: newEventStatusId, 
+      },
     });
   },
 

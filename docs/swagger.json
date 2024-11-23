@@ -16,7 +16,9 @@
       "get": {
         "summary": "Get all events",
         "operationId": "getAllEvents",
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "responses": {
           "200": {
             "description": "A list of events",
@@ -36,7 +38,9 @@
       "post": {
         "summary": "Create a new event",
         "operationId": "createEvent",
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "requestBody": {
           "description": "Event to create",
           "required": true,
@@ -91,7 +95,9 @@
       "get": {
         "summary": "Get a specific event by ID",
         "operationId": "getEventById",
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -122,7 +128,9 @@
       "put": {
         "summary": "Update a specific event by ID",
         "operationId": "updateEvent",
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -173,7 +181,9 @@
       "delete": {
         "summary": "Delete a specific event by ID",
         "operationId": "deleteEvent",
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -195,11 +205,48 @@
         }
       }
     },
+    "/api/events/{id}/status": {
+      "put": {
+        "summary": "Update the status of a specific event by ID",
+        "operationId": "updateEventStatus",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the event",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found"
+          }
+        }
+      }
+    },
     "/api/addressEvents": {
       "get": {
         "summary": "Get all address events",
         "operationId": "getAllAddressEvents",
-        "tags": ["AddressEvents"],
+        "tags": [
+          "AddressEvents"
+        ],
         "responses": {
           "200": {
             "description": "A list of address events",
@@ -219,7 +266,9 @@
       "post": {
         "summary": "Create a new address event",
         "operationId": "createAddressEvent",
-        "tags": ["AddressEvents"],
+        "tags": [
+          "AddressEvents"
+        ],
         "requestBody": {
           "description": "Address event to create",
           "required": true,
@@ -270,7 +319,9 @@
       "get": {
         "summary": "Get a specific address event by ID",
         "operationId": "getAddressEventById",
-        "tags": ["AddressEvents"],
+        "tags": [
+          "AddressEvents"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -301,7 +352,9 @@
       "put": {
         "summary": "Update a specific address event by ID",
         "operationId": "updateAddressEvent",
-        "tags": ["AddressEvents"],
+        "tags": [
+          "AddressEvents"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -350,7 +403,9 @@
       "delete": {
         "summary": "Delete a specific address event by ID",
         "operationId": "deleteAddressEvent",
-        "tags": ["AddressEvents"],
+        "tags": [
+          "AddressEvents"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -376,7 +431,9 @@
       "get": {
         "summary": "Get all routes events",
         "operationId": "getAllRoutesEvents",
-        "tags": ["RoutesEvents"],
+        "tags": [
+          "RoutesEvents"
+        ],
         "responses": {
           "200": {
             "description": "A list of routes events",
@@ -396,7 +453,9 @@
       "post": {
         "summary": "Create a new routes event",
         "operationId": "createRoutesEvent",
-        "tags": ["RoutesEvents"],
+        "tags": [
+          "RoutesEvents"
+        ],
         "requestBody": {
           "description": "Routes event to create",
           "required": true,
@@ -445,7 +504,9 @@
       "get": {
         "summary": "Get a specific routes event by ID",
         "operationId": "getRoutesEventById",
-        "tags": ["RoutesEvents"],
+        "tags": [
+          "RoutesEvents"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -476,7 +537,9 @@
       "put": {
         "summary": "Update a specific routes event by ID",
         "operationId": "updateRoutesEvent",
-        "tags": ["RoutesEvents"],
+        "tags": [
+          "RoutesEvents"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -524,7 +587,9 @@
       "delete": {
         "summary": "Delete a specific routes event by ID",
         "operationId": "deleteRoutesEvent",
-        "tags": ["RoutesEvents"],
+        "tags": [
+          "RoutesEvents"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -550,7 +615,9 @@
       "get": {
         "summary": "Get all event statuses",
         "operationId": "getAllEventStatuses",
-        "tags": ["EventStatus"],
+        "tags": [
+          "EventStatus"
+        ],
         "responses": {
           "200": {
             "description": "A list of event statuses",
@@ -583,7 +650,9 @@
       "post": {
         "summary": "Create a new event status",
         "operationId": "createEventStatus",
-        "tags": ["EventStatus"],
+        "tags": [
+          "EventStatus"
+        ],
         "requestBody": {
           "description": "Data for creating a new event status",
           "required": true,
@@ -626,7 +695,9 @@
       "get": {
         "summary": "Get an event status by ID",
         "operationId": "getEventStatusById",
-        "tags": ["EventStatus"],
+        "tags": [
+          "EventStatus"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -664,7 +735,9 @@
       "put": {
         "summary": "Update an event status",
         "operationId": "updateEventStatus",
-        "tags": ["EventStatus"],
+        "tags": [
+          "EventStatus"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -716,7 +789,9 @@
       "delete": {
         "summary": "Delete an event status",
         "operationId": "deleteEventStatus",
-        "tags": ["EventStatus"],
+        "tags": [
+          "EventStatus"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -741,9 +816,7 @@
         }
       }
     }
-  
   },
-  
   "components": {
     "schemas": {
       "Event": {
@@ -954,7 +1027,9 @@
             "example": "Completed"
           }
         },
-        "required": ["status"]
+        "required": [
+          "status"
+        ]
       }
     }
   }
