@@ -46,6 +46,7 @@
                 "$ref": "#/components/schemas/EventInput"
               },
               "example": {
+                "userId": "44444444-4444-4444-4444-444444444444",
                 "name": "Tech Conference 2024",
                 "description": "A cutting-edge conference on emerging tech trends.",
                 "startAt": "2024-05-15T09:00:00Z",
@@ -66,6 +67,7 @@
                 },
                 "example": {
                   "eventID": "f8d99d7e-5cfd-42d7-9fdd-c33f33c9a413",
+                  "userId": "44444444-4444-4444-4444-444444444444",
                   "name": "Tech Conference 2024",
                   "description": "A cutting-edge conference on emerging tech trends.",
                   "startAt": "2024-05-15T09:00:00Z",
@@ -141,6 +143,7 @@
                 "$ref": "#/components/schemas/EventInput"
               },
               "example": {
+                "userId": "44444444-4444-4444-4444-444444444444",
                 "name": "Tech Conference 2024 (Updated)",
                 "description": "An updated cutting-edge conference on emerging tech trends.",
                 "startAt": "2024-05-15T10:00:00Z",

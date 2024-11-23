@@ -1,6 +1,7 @@
 -- CreateTable
 CREATE TABLE "Events" (
     "eventID" UUID NOT NULL,
+    "userId" UUID NOT NULL,
     "name" VARCHAR(40) NOT NULL,
     "description" TEXT NOT NULL,
     "startAt" TIMESTAMP(3) NOT NULL,

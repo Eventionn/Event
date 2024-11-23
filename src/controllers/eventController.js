@@ -55,8 +55,9 @@ const eventController = {
    */
   async createEvent(req, res) {
     try {
-      const { name, description, startAt, endAt, price, eventstatus_id } = req.body;
-      if (!name || !description || !startAt || !endAt || !price || !eventstatus_id) {
+      console.log(req.body)
+      const { userId, name, description, startAt, endAt, price, eventstatus_id } = req.body;
+      if (!userId || !name || !description || !startAt || !endAt || !price || !eventstatus_id) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 

@@ -12,6 +12,7 @@ generator client {
 
 model Event {
   eventID        String      @id @default(uuid()) @db.Uuid
+  userId         String      @db.Uuid
   name           String      @db.VarChar(40)
   description    String      @db.Text
   startAt        DateTime

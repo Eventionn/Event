@@ -27,10 +27,10 @@ const eventStatusData = [
   },
 ];
 
-
 const eventData = [
   {
     eventID: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    userId: 'c3b6f3e2-63d0-4e7b-8a2e-5c75dcba8e4b',
     name: 'Tech Conference 2024',
     description: 'A cutting-edge conference on emerging tech trends.',
     startAt: new Date('2024-05-15T09:00:00Z'),
@@ -41,6 +41,7 @@ const eventData = [
   },
   {
     eventID: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    userId: 'f5d4e876-1c5d-485f-a7b8-5e012efddc93',
     name: 'Music Festival',
     description: 'An open-air music festival with top artists.',
     startAt: new Date('2024-06-10T12:00:00Z'),
