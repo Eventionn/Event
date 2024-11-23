@@ -39,7 +39,7 @@ model AddressEvent {
   road                   String        @db.VarChar(20)
   roadNumber             Int
   postCode               String        @db.VarChar(20)
-  localtown              String        @db.VarChar(100)
+  localtown              String        @db.Uuid
   event                  Event         @relation(fields: [event_id], references: [eventID])
   event_id               String        @db.Uuid
   routes                 RoutesEvent[]

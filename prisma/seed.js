@@ -58,7 +58,7 @@ const addressEventData = [
     road: 'Main Street',
     roadNumber: 123,
     postCode: '1000-123',
-    localtown: 'Tech City',
+    localtown: 'f58c9b62-91f0-42ec-96f0-7cc679c0718a',
     event_id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
   },
   {
@@ -66,7 +66,7 @@ const addressEventData = [
     road: 'Festival Avenue',
     roadNumber: 456,
     postCode: '2000-456',
-    localtown: 'Music Town',
+    localtown: 'f58c9b62-91f0-42ec-96f0-7cc679c0718a',
     event_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
   },
 ];

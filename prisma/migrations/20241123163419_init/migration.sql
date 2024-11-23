@@ -27,7 +27,7 @@ CREATE TABLE "AddressEvents" (
     "road" VARCHAR(20) NOT NULL,
     "roadNumber" INTEGER NOT NULL,
     "postCode" VARCHAR(20) NOT NULL,
-    "localtown" VARCHAR(100) NOT NULL,
+    "localtown" UUID NOT NULL,
     "event_id" UUID NOT NULL,
 
     CONSTRAINT "AddressEvents_pkey" PRIMARY KEY ("addressEstablishmentID")
