@@ -1072,15 +1072,15 @@
         "required": [
           "status"
         ]
-      },
-      "securityDefinitions": {
-        "bearerAuth": {
-          "type": "apiKey",
-          "name": "Authorization",
-          "in": "header",
-          "description": "Bearer token authentication"
-        }
       }
+    }
+  },
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Bearer token authentication"
     }
   }
 }
