@@ -20,23 +20,23 @@ const eventService = {
     });
   },
 
-  //   /**
-  //  * Get all events
-  //  * @returns {Promise<Array>} List of user events
-  //  */
-  //   async getUserEvents(userId) {
-  //     return prisma.event.findMany({
-  //       where: {userId},
-  //       include: {
-  //         eventStatus: true,
-  //         addressEvents: {
-  //           include: {
-  //             routes: true,
-  //           },
-  //         },
-  //       },
-  //     });
-  //   },
+    /**
+   * Get all events
+   * @returns {Promise<Array>} List of user events
+   */
+    async getUserEvents(userId) {
+      return prisma.event.findMany({
+        where: {userId},
+        include: {
+          eventStatus: true,
+          addressEvents: {
+            include: {
+              routes: true,
+            },
+          },
+        },
+      });
+    },
 
   /**
    * Get a specific event by ID

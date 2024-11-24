@@ -25,27 +25,31 @@ const eventController = {
     }
   },
 
-  // /**
-  //  * Get user events
-  //  * @route {GET} /events/my
-  //  * @param {string} id - The ID of the event
-  //  * @returns {Array} List of events
-  //  */
-  // async getUserEvents(req, res) {
-  //   try {
-  //     const events = await eventService.getUserEvents();
+  /**
+   * Get user events
+   * @route {GET} /events/my
+   * @param {string} id - The ID of the event
+   * @returns {Array} List of events
+   */
+  async getUserEvents(req, res) {
+    try {
+      const userId = req.user.id;
 
-  //     if (events == null || events.length === 0) {
-  //       return res.status(404).json({ message: 'No events found' });
-  //     }
+      console.log(userId)
 
-  //     res.status(200).json(events);
+      const events = await eventService.getUserEvents(userId);
 
-  //   } catch (error) {
-  //     console.error(error);
-  //     res.status(500).json({ message: 'Error fetching events' });
-  //   }
-  // },
+      if (events == null || events.length === 0) {
+        return res.status(404).json({ message: 'No events found' });
+      }
+
+      res.status(200).json(events);
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching events' });
+    }
+  },
 
   /**
    * Get a specific event by ID

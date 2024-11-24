@@ -91,6 +91,39 @@
         }
       }
     },
+    "/api/events/my": {
+      "get": {
+        "summary": "Get the events of the current user",
+        "operationId": "getUserEvents",
+        "tags": [
+          "Events"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of the user's events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "No events found for the user"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/events/{id}": {
       "get": {
         "summary": "Get a specific event by ID",
