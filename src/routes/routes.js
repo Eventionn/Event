@@ -9,7 +9,7 @@ const router = Router();
 
 router.get('/events', eventController.getAllEvents);
 router.post('/events', eventController.createEvent);
-router.get('/events/my', eventController.getUserEvents);
+router.get('/events/my', verifyToken, eventController.getUserEvents);
 router.get('/events/:id', eventController.getEventById);
 router.put('/events/:id', eventController.updateEvent);
 router.delete('/events/:id', eventController.deleteEvent);
