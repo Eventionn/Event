@@ -27,10 +27,10 @@ spec:
             - name: POSTGRES_DB
               value: "eventservice_db"    # Nome DB
           ports:
-            - containerPort: 5432     # Porta padrão do PostgreSQL
+            - containerPort: 5432    
           volumeMounts:
             - name: eventservice-db-data
-              mountPath: /var/lib/postgresql/data # Diretório de dados
+              mountPath: /var/lib/postgresql/data 
   volumeClaimTemplates:
     - metadata:
         name: eventservice-db-data
@@ -55,4 +55,4 @@ spec:
     - port: 5434           # Porta do serviço
       targetPort: 5432     # Porta no container
   selector:
-    app: eventservice-db        # Seleciona o StatefulSet pelo label
+    app: eventservice-db   

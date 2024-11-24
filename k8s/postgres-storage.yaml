@@ -13,7 +13,7 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: "/mnt/data/eventservice-db" # Caminho local no nó onde os dados serão armazenados
+    path: "/mnt/data/eventservice-db"
 
 ---
 # PersistentVolumeClaim para utilizar o PV acima
