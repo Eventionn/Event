@@ -33,6 +33,7 @@ const eventController = {
    */
   async getUserEvents(req, res) {
     try {
+      console.log(req.user)
       const userId = req.user.id;
 
       console.log(userId)
