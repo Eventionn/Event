@@ -45,6 +45,11 @@
         "tags": [
           "Events"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "description": "Event to create",
           "required": true,
