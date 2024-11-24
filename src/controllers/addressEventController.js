@@ -57,7 +57,6 @@ const addressEventController = {
     try {
       const { road, roadNumber, postCode, localtown, event_id } = req.body;
       
-      // Verificar campos obrigatórios
       if (!road || !roadNumber || !postCode || !localtown || !event_id) {
         return res.status(400).json({ message: 'Missing required fields' });
       }

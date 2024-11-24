@@ -8,12 +8,13 @@ import {verifyToken }from "../middlewares/authMiddleware.js";
 const router = Router();
 
 router.get('/events', eventController.getAllEvents);
-router.post('/events', eventController.createEvent);
+router.post('/events', verifyToken, eventController.createEvent);
 router.get('/events/my', verifyToken, eventController.getUserEvents);
 router.get('/events/:id', eventController.getEventById);
 router.put('/events/:id', eventController.updateEvent);
 router.delete('/events/:id', eventController.deleteEvent);
 router.put('/events/:id/status', eventController.updateEventStatus);
+router.put('/events/:id/cancel', eventController.cancelEvent);
 
 router.get('/addressEvents', addressEventController.getAllAddressEvents)
 router.post('/addressEvents', addressEventController.createAddressEvent);

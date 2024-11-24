@@ -55,9 +55,7 @@ const routesEventController = {
   async createRoutesEvent(req, res) {
     try {
       const { latitude, longitude, order, addressEvent_id } = req.body;
-      console.log(req.body)
       
-      // Verificar campos obrigatórios
       if (latitude === undefined || longitude === undefined || order === undefined || !addressEvent_id) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
@@ -105,7 +103,7 @@ const routesEventController = {
    */
   async deleteRoutesEvent(req, res) {
     try {
-      const routeID = req.params.routeID;
+      const routeID = req.params.id;
   
       const routesEvent = await routesEventService.getRoutesEventById(routeID);
       if (!routesEvent) {
@@ -113,7 +111,7 @@ const routesEventController = {
       }
   
       await routesEventService.deleteRoutesEvent(routeID);
-      res.status(204).send();  // Successfully deleted, no content to return
+      res.status(204).send();
   
     } catch (error) {
       console.error(error);

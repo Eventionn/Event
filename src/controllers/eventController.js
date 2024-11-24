@@ -80,20 +80,28 @@ const eventController = {
    */
   async createEvent(req, res) {
     try {
-      const { userId, name, description, startAt, endAt, price, eventstatus_id } = req.body;
-      if (!userId || !name || !description || !startAt || !endAt || !price || !eventstatus_id) {
+      const { name, description, startAt, endAt, price } = req.body;
+      const userId = req.user.userID;
+      
+      if (!name || !description || !startAt || !endAt || !price) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
       const userExists = await axios.get(`http://userservice:5001/api/users/${userId}`);
-
       if (!userExists) {
         return res.status(404).json({ message: 'User not found' });
       }
-
-      const newEvent = await eventService.createEvent(req.body);
+  
+      const eventStatusPending = await eventStatusService.getEventStatusByStatus('Pendente');
+  
+      const newEvent = await eventService.createEvent({
+        ...req.body,
+        userId: userId,
+        eventstatus_id: eventStatusPending.eventStatusID
+      });
+  
       res.status(201).json(newEvent);
-
+  
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Error creating event' });
@@ -155,6 +163,32 @@ const eventController = {
 
       return res.status(400).json({ message: 'Event status is not pending' });
 
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error updating event status' });
+    }
+  },
+
+  /**
+   * Cancel an event
+   * @route {PUT} /events/:id/status
+   * @param {string} id - The ID of the event to update
+   * @returns {Object} The updated event
+   */
+  async cancelEvent(req, res) {
+    try {
+      const eventId = req.params.id;
+
+      const eventStatusCancelled = await eventStatusService.getEventStatusByStatus('Cancelado');
+
+      const event = await eventService.getEventById(eventId);
+      if (!event) {
+        return res.status(404).json({ message: 'Event not found' });
+      }
+
+      const updatedEvent = await eventService.updateEventStatus(eventId, eventStatusCancelled.eventStatusID);
+      return res.status(200).json(updatedEvent);
+    
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Error updating event status' });

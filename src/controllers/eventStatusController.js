@@ -56,7 +56,6 @@ const eventStatusController = {
     try {
       const { status } = req.body;
 
-      // Verificar campos obrigatórios
       if (!status) {
         return res.status(400).json({ message: 'Missing required field: status' });
       }
@@ -112,7 +111,7 @@ const eventStatusController = {
       }
 
       await eventStatusService.deleteEventStatus(eventStatusID);
-      res.status(204).send(); // Successfully deleted, no content to return
+      res.status(204).send();
 
     } catch (error) {
       console.error(error);
