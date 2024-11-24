@@ -99,6 +99,11 @@
       "get": {
         "summary": "Get the events of the current user",
         "operationId": "getUserEvents",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "tags": [
           "Events"
         ],
