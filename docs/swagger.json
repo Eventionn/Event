@@ -250,10 +250,15 @@
     },
     "/api/events/{id}/status": {
       "put": {
-        "summary": "Update the status of a specific event by ID",
+        "summary": "Approve a specific event by ID",
         "operationId": "updateEventStatus",
         "tags": [
           "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
         ],
         "parameters": [
           {
@@ -289,6 +294,11 @@
         "operationId": "cancelEvent",
         "tags": [
           "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
         ],
         "parameters": [
           {

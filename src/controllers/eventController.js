@@ -82,26 +82,35 @@ const eventController = {
     try {
       const { name, description, startAt, endAt, price } = req.body;
       const userId = req.user.userID;
-      
+
       if (!name || !description || !startAt || !endAt || !price) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
+      //const userExists = await axios.get(`http://localhost:5001/api/users/${userId}`);
       const userExists = await axios.get(`http://userservice:5001/api/users/${userId}`);
       if (!userExists) {
         return res.status(404).json({ message: 'User not found' });
       }
-  
+
       const eventStatusPending = await eventStatusService.getEventStatusByStatus('Pendente');
-  
+
       const newEvent = await eventService.createEvent({
         ...req.body,
         userId: userId,
         eventstatus_id: eventStatusPending.eventStatusID
       });
-  
+
+      const token = 'dF2k8hQLb9T:APA91bH7-5RryA3w-XgHrC8_yLqVjvYZ76k7B9oQqEXAMPLE';
+      const notificationData = {
+        title: 'Evento Criado!',
+        body: `O evento "${name}" foi criado com sucesso. Aguarde pela aprovação.`,
+      };
+
+      await eventService.sendNotification(notificationData, token);
+
       res.status(201).json(newEvent);
-  
+
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Error creating event' });
@@ -135,9 +144,9 @@ const eventController = {
   },
 
   /**
-   * Update an event status
+   * Approve an event
    * @route {PUT} /events/:id/status
-   * @param {string} id - The ID of the event to update
+   * @param {string} id - The ID of the event to approve
    * @returns {Object} The updated event
    */
   async updateEventStatus(req, res) {
@@ -154,6 +163,14 @@ const eventController = {
       const event = await eventService.getEventById(eventId);
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
+      }
+
+      //const user = await axios.get(`http://localhost:5001/api/users/${event.userId}`);
+      const user = await axios.get(`http://userservice:5001/api/users/${event.userId}`);
+
+      if (user && user.data.usertype_id === '2c6aab42-7274-424e-8c10-e95441cb95c3') {
+        //await axios.put(`http://localhost:5001/api/users/${event.userId}`);
+        await axios.put(`http://userservice:5001/api/users/${event.userId}`);
       }
 
       if (event.eventstatus_id === eventStatusPending.eventStatusID) {
@@ -186,9 +203,29 @@ const eventController = {
         return res.status(404).json({ message: 'Event not found' });
       }
 
+      //const eventTickets = await axios.get(`http://localhost:5009/api/tickets/event/${eventId}`);
+      const eventTickets = await axios.get(`http://userineventservice:5009/api/tickets/event/${eventId}`);
+
+      const payments = (
+        await Promise.all(
+          eventTickets.data.map(async (ticket) => {
+            //const response = await axios.get(`http://localhost:5004/api/payments/ticket/${ticket.ticketID}`);
+            const response = await axios.get(`http://paymentservice:5004/api/payments/ticket/${ticket.ticketID}`);
+            return response.data;
+          })
+        )
+      ).flat();
+
       const updatedEvent = await eventService.updateEventStatus(eventId, eventStatusCancelled.eventStatusID);
+      await Promise.all(
+        payments.map(async (payment) => {
+          //await axios.put(`http://localhost:5004/api/payments/${payment.paymentID}/cancel`);
+          await axios.put(`http://paymentservice:5004/api/payments/${payment.paymentID}/cancel`);
+        })
+      );
+
       return res.status(200).json(updatedEvent);
-    
+
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Error updating event status' });

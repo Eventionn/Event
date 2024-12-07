@@ -4,17 +4,19 @@ import addressEventController from "../controllers/addressEventController.js";
 import routesEventController from "../controllers/routesEventController.js";
 import eventStatusController from '../controllers/eventStatusController.js';
 import {verifyToken }from "../middlewares/authMiddleware.js";
+import { verifyAdmin } from "../middlewares/adminMiddleware.js";
+import { verifyAdvertiser } from "../middlewares/advertiserMiddleware.js";
 
 const router = Router();
 
 router.get('/events', eventController.getAllEvents);
 router.post('/events', verifyToken, eventController.createEvent);
-router.get('/events/my', verifyToken, eventController.getUserEvents);
+router.get('/events/my', verifyToken, verifyAdvertiser, eventController.getUserEvents);
 router.get('/events/:id', eventController.getEventById);
 router.put('/events/:id', eventController.updateEvent);
 router.delete('/events/:id', eventController.deleteEvent);
-router.put('/events/:id/status', eventController.updateEventStatus);
-router.put('/events/:id/cancel', eventController.cancelEvent);
+router.put('/events/:id/status', verifyToken, verifyAdmin, eventController.updateEventStatus);
+router.put('/events/:id/cancel', verifyToken, verifyAdvertiser, eventController.cancelEvent);
 
 router.get('/addressEvents', addressEventController.getAllAddressEvents)
 router.post('/addressEvents', addressEventController.createAddressEvent);

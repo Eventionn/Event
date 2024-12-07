@@ -1,6 +1,16 @@
 import { PrismaClient } from '@prisma/client';
+import axios from 'axios';
+import admin from 'firebase-admin';
+import fs from 'fs';
 
 const prisma = new PrismaClient();
+
+const serviceAccount = JSON.parse(fs.readFileSync('./src/evention-7c28e-firebase-adminsdk-z84tf-31e1581df0.json'));
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
 
 const eventService = {
   /**
@@ -20,23 +30,49 @@ const eventService = {
     });
   },
 
-    /**
-   * Get all events
-   * @returns {Promise<Array>} List of user events
-   */
-    async getUserEvents(userId) {
-      return prisma.event.findMany({
-        where: {userId},
-        include: {
-          eventStatus: true,
-          addressEvents: {
-            include: {
-              routes: true,
-            },
+  /**
+     * Send a notification to a specific device using Firebase Cloud Messaging
+     * @param {Object} notificationData - The notification data containing title and body
+     * @param {string} registrationToken - The FCM registration token of the target device
+     * @returns {Promise<Object>} The response from Firebase Cloud Messaging
+     */
+  async sendNotification(notificationData, registrationToken) {
+    try {
+      const message = {
+        data: {
+          title: notificationData.title,
+          body: notificationData.body,
+        },
+        token: registrationToken,
+      };
+
+      const response = await admin.messaging().send(message);
+      console.log('Notification sent:', response);
+
+      return response;
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      throw new Error('Error sending notification.');
+    }
+  },
+
+  /**
+ * Get all events
+ * @returns {Promise<Array>} List of user events
+ */
+  async getUserEvents(userId) {
+    return prisma.event.findMany({
+      where: { userId },
+      include: {
+        eventStatus: true,
+        addressEvents: {
+          include: {
+            routes: true,
           },
         },
-      });
-    },
+      },
+    });
+  },
 
   /**
    * Get a specific event by ID
@@ -91,7 +127,7 @@ const eventService = {
     return prisma.event.update({
       where: { eventID: eventId },
       data: {
-        eventstatus_id: newEventStatusId, 
+        eventstatus_id: newEventStatusId,
       },
     });
   },
