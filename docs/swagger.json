@@ -58,35 +58,32 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "example": {
-                    "name": "Tech Conference 2024",
-                    "description": "A cutting-edge conference on emerging tech trends.",
-                    "startAt": "2024-05-15T09:00:00Z",
-                    "endAt": "2024-05-16T17:00:00Z",
-                    "price": 199.99,
-                    "image": "example-image.png"
-                  },
                   "name": {
                     "type": "string",
-                    "description": "Name of the event"
+                    "description": "Name of the event",
+                    "example": "Tech Conference 2024"
                   },
                   "description": {
                     "type": "string",
-                    "description": "Description of the event"
+                    "description": "Description of the event",
+                    "example": "A cutting-edge conference on emerging tech trends."
                   },
                   "startAt": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "Start date and time of the event"
+                    "description": "Start date and time of the event",
+                    "example": "2024-05-15T09:00:00Z"
                   },
                   "endAt": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "End date and time of the event"
+                    "description": "End date and time of the event",
+                    "example": "2024-05-16T17:00:00Z"
                   },
                   "price": {
                     "type": "number",
-                    "description": "Price of the event"
+                    "description": "Price of the event",
+                    "example": 199.99
                   },
                   "image": {
                     "type": "string",
