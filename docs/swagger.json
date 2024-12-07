@@ -199,6 +199,9 @@
       "put": {
         "summary": "Update a specific event by ID",
         "operationId": "updateEvent",
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "Events"
         ],
@@ -217,10 +220,51 @@
           "description": "Updated event data",
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/EventInput"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the event",
+                    "example": "Tech Conference 2024 (Updated)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the event",
+                    "example": "A cutting-edge conference on emerging tech trends."
+                  },
+                  "startAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Start date and time of the event",
+                    "example": "2024-05-15T09:00:00Z"
+                  },
+                  "endAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "End date and time of the event",
+                    "example": "2024-05-16T17:00:00Z"
+                  },
+                  "price": {
+                    "type": "number",
+                    "description": "Price of the event",
+                    "example": 199.99
+                  },
+                  "eventPicture": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image file for the event"
+                  }
+                }
               },
+              "required": [
+                  "name",
+                  "description",
+                  "startAt",
+                  "endAt",
+                  "price"
+                ],
               "example": {
                 "name": "Tech Conference 2024 (Updated)",
                 "description": "An updated cutting-edge conference on emerging tech trends.",

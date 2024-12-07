@@ -1,10 +1,10 @@
 import eventService from '../services/eventService.js';
 import eventStatusService from '../services/eventStatusService.js';
 import axios from 'axios';
-import { fileURLToPath } from 'url'; 
+import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
-
+import { v4 as uuidv4 } from 'uuid'; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -90,7 +90,9 @@ const eventController = {
       const { name, description, startAt, endAt, price } = req.body;
       const userId = req.user.userID;
 
-      if (!name || !description || !startAt || !endAt || !price) {
+      const numericPrice = parseFloat(price);
+
+      if (!name || !description || !startAt || !endAt || !numericPrice) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
@@ -104,29 +106,35 @@ const eventController = {
 
       if (req.files && req.files.eventPicture) {
         const eventPicture = req.files.eventPicture;
-  
+
         const allowedExtensions = /png|jpeg|jpg|webp/;
         const fileExtension = path.extname(eventPicture.name).toLowerCase();
         if (!allowedExtensions.test(fileExtension)) {
           return res.status(400).json({ message: "Invalid file type. Only PNG, JPEG, and JPG are allowed." });
         }
-  
+
         if (eventPicturePath && fs.existsSync(path.join(__dirname, '../public', eventPicturePath))) {
           fs.unlinkSync(path.join(__dirname, '../public', eventPicturePath));
         }
 
-        const uploadPath = path.join(__dirname, '../public/uploads/event_pictures', `${id}-${Date.now()}${fileExtension}`);
-        await eventPicture.mv(uploadPath); 
-  
+        const uniqueName = `${uuidv4()}${fileExtension}`;
+        const uploadPath = path.join(__dirname, '../public/uploads/event_pictures', uniqueName);
+        await eventPicture.mv(uploadPath);
+
         eventPicturePath = `/uploads/event_pictures/${path.basename(uploadPath)}`;
       }
 
       const eventStatusPending = await eventStatusService.getEventStatusByStatus('Pendente');
 
       const newEvent = await eventService.createEvent({
-        ...req.body,
-        userId: userId,
-        eventstatus_id: eventStatusPending.eventStatusID
+        name,
+        description,
+        startAt,
+        endAt,
+        price: numericPrice,
+        userId,
+        eventstatus_id: eventStatusPending.eventStatusID,
+        eventPicture: eventPicturePath
       });
 
       const token = 'dF2k8hQLb9T:APA91bH7-5RryA3w-XgHrC8_yLqVjvYZ76k7B9oQqEXAMPLE';
@@ -155,16 +163,49 @@ const eventController = {
   async updateEvent(req, res) {
     try {
       const eventId = req.params.id;
-      const eventData = req.body;
-
+      const { name, description, startAt, endAt, price } = req.body;
+  
+      const numericPrice = price ? parseFloat(price) : undefined;
+  
       const event = await eventService.getEventById(eventId);
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
       }
-
-      const updatedEvent = await eventService.updateEvent(eventId, eventData);
+  
+      let eventPicturePath = event.eventPicturePath;
+  
+      if (req.files && req.files.eventPicture) {
+        const eventPicture = req.files.eventPicture;
+  
+        const allowedExtensions = /png|jpeg|jpg|webp/;
+        const fileExtension = path.extname(eventPicture.name).toLowerCase();
+        if (!allowedExtensions.test(fileExtension)) {
+          return res.status(400).json({ message: "Invalid file type. Only PNG, JPEG, and JPG are allowed." });
+        }
+  
+        if (eventPicturePath && fs.existsSync(path.join(__dirname, '../public', eventPicturePath))) {
+          fs.unlinkSync(path.join(__dirname, '../public', eventPicturePath));
+        }
+  
+        const uniqueName = `${uuidv4()}${fileExtension}`;
+        const uploadPath = path.join(__dirname, '../public/uploads/event_pictures', uniqueName);
+        await eventPicture.mv(uploadPath);
+  
+        eventPicturePath = `/uploads/event_pictures/${path.basename(uploadPath)}`;
+      }
+  
+      const updatedEventData = {
+        ...(name && { name }),
+        ...(description && { description }),
+        ...(startAt && { startAt }),
+        ...(endAt && { endAt }),
+        ...(numericPrice !== undefined && { price: numericPrice }),
+        ...(eventPicturePath && { eventPicture: eventPicturePath }),
+      };
+  
+      const updatedEvent = await eventService.updateEvent(eventId, updatedEventData);
       res.status(200).json(updatedEvent);
-
+  
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Error updating event' });
