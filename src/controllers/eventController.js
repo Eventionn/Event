@@ -107,7 +107,7 @@ const eventController = {
         body: `O evento "${name}" foi criado com sucesso. Aguarde pela aprovação.`,
       };
 
-      await eventService.sendNotification(notificationData, token);
+      //await eventService.sendNotification(notificationData, token);
 
       res.status(201).json(newEvent);
 
