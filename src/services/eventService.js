@@ -45,7 +45,9 @@ const eventService = {
         },
       },
       where: {
-        eventStatus: '11111111-1111-1111-1111-111111111111'
+        eventStatus: {
+          eventStatusID: '11111111-1111-1111-1111-111111111111'
+        }
       }
     });
   },
