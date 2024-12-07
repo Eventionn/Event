@@ -87,6 +87,7 @@ const eventController = {
    */
   async createEvent(req, res) {
     try {
+      console.log(req.body)
       const { name, description, startAt, endAt, price } = req.body;
       const userId = req.user.userID;
 
