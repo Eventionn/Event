@@ -31,6 +31,26 @@ const eventService = {
   },
 
   /**
+   * Get suspended events
+   * @returns {Promise<Array>} List of all events
+   */
+  async getSuspendedEvents() {
+    return prisma.event.findMany({
+      include: {
+        eventStatus: true,
+        addressEvents: {
+          include: {
+            routes: true,
+          },
+        },
+      },
+      where: {
+        eventStatus: '11111111-1111-1111-1111-111111111111'
+      }
+    });
+  },
+
+  /**
      * Send a notification to a specific device using Firebase Cloud Messaging
      * @param {Object} notificationData - The notification data containing title and body
      * @param {string} registrationToken - The FCM registration token of the target device

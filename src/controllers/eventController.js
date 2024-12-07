@@ -33,6 +33,27 @@ const eventController = {
   },
 
   /**
+   * Get suspended events
+   * @route {GET} /events/suspended
+   * @returns {Array} List of events
+   */
+  async getSuspendedEvents(req, res) {
+    try {
+      const suspendedEvents = await eventService.getSuspendedEvents();
+
+      if (suspendedEvents == null || suspendedEvents.length === 0) {
+        return res.status(404).json({ message: 'No suspended events found' });
+      }
+
+      res.status(200).json(suspendedEvents);
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching events' });
+    }
+  },
+
+  /**
    * Get user events
    * @route {GET} /events/my
    * @param {string} id - The ID of the event
