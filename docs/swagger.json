@@ -45,16 +45,13 @@
         "tags": [
           "Events"
         ],
-        "consumes": [
-          "multipart/form-data"
-        ],
         "security": [
           {
             "bearerAuth": []
           }
         ],
         "requestBody": {
-          "description": "Event to create",
+          "description": "Event to create, including optional image",
           "required": true,
           "content": {
             "multipart/form-data": {
@@ -63,35 +60,30 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "description": "Name of the event",
-                    "example": "Tech Conference 2024"
+                    "description": "Name of the event"
                   },
                   "description": {
                     "type": "string",
-                    "description": "Description of the event",
-                    "example": "A cutting-edge conference on emerging tech trends."
+                    "description": "Description of the event"
                   },
                   "startAt": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "Start date and time of the event",
-                    "example": "2024-05-15T09:00:00Z"
+                    "description": "Start date and time of the event"
                   },
                   "endAt": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "End date and time of the event",
-                    "example": "2024-05-16T17:00:00Z"
+                    "description": "End date and time of the event"
                   },
                   "price": {
                     "type": "number",
-                    "description": "Price of the event",
-                    "example": 199.99
+                    "description": "Price of the event"
                   },
-                  "eventPicture": {
+                  "image": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Event picture file"
+                    "description": "Image file for the event"
                   }
                 },
                 "required": [
@@ -99,8 +91,7 @@
                   "description",
                   "startAt",
                   "endAt",
-                  "price",
-                  "eventstatus_id"
+                  "price"
                 ]
               }
             }
@@ -113,21 +104,12 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Event"
-                },
-                "example": {
-                  "eventID": "f8d99d7e-5cfd-42d7-9fdd-c33f33c9a413",
-                  "userId": "44444444-4444-4444-4444-444444444444",
-                  "name": "Tech Conference 2024",
-                  "description": "A cutting-edge conference on emerging tech trends.",
-                  "startAt": "2024-05-15T09:00:00Z",
-                  "endAt": "2024-05-16T17:00:00Z",
-                  "price": 199.99
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request - Missing required fields"
+            "description": "Bad Request - Missing required fields or invalid file format"
           },
           "500": {
             "description": "Internal Server Error"
@@ -390,50 +372,84 @@
         }
       },
       "post": {
-        "summary": "Create a new address event",
-        "operationId": "createAddressEvent",
+        "summary": "Create a new event",
+        "operationId": "createEvent",
         "tags": [
-          "AddressEvents"
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
         ],
         "requestBody": {
-          "description": "Address event to create",
+          "description": "Event to create, including optional image",
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/AddressEventInput"
-              },
-              "example": {
-                "event_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-                "roadNumber": 485,
-                "postCode": "94043",
-                "road": "Mountain View",
-                "localtown": "f58c9b62-91f0-42ec-96f0-7cc679c0718a"
+                "type": "object",
+                "properties": {
+                  "example": {
+                    "name": "Tech Conference 2024",
+                    "description": "A cutting-edge conference on emerging tech trends.",
+                    "startAt": "2024-05-15T09:00:00Z",
+                    "endAt": "2024-05-16T17:00:00Z",
+                    "price": 199.99,
+                    "image": "example-image.png"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the event"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the event"
+                  },
+                  "startAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Start date and time of the event"
+                  },
+                  "endAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "End date and time of the event"
+                  },
+                  "price": {
+                    "type": "number",
+                    "description": "Price of the event"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image file for the event"
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "startAt",
+                  "endAt",
+                  "price"
+                ]
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Address event created successfully",
+            "description": "Event created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AddressEvent"
-                },
-                "example": {
-                  "id": "b3f5d0a9-22a3-45c0-804b-b1e2b028953b",
-                  "event_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-                  "roadNumber": 485,
-                  "postCode": "94043",
-                  "road": "Mountain View",
-                  "localtown": "f58c9b62-91f0-42ec-96f0-7cc679c0718a"
+                  "$ref": "#/components/schemas/Event"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request - Missing required fields"
+            "description": "Bad Request - Missing required fields or invalid file format"
           },
           "500": {
             "description": "Internal Server Error"
@@ -995,8 +1011,7 @@
           "description",
           "startAt",
           "endAt",
-          "price",
-          "eventstatus_id"
+          "price"
         ],
         "properties": {
           "name": {
@@ -1020,15 +1035,6 @@
           "price": {
             "type": "number",
             "description": "Price of the event"
-          },
-          "eventstatus_id": {
-            "type": "string",
-            "description": "Event status ID"
-          },
-          "profilePicture": {
-            "type": "string",
-            "format": "binary",
-            "description": "Profile picture file"
           }
         }
       },
