@@ -6,8 +6,10 @@ import eventStatusController from '../controllers/eventStatusController.js';
 import {verifyToken }from "../middlewares/authMiddleware.js";
 import { verifyAdmin } from "../middlewares/adminMiddleware.js";
 import { verifyAdvertiser } from "../middlewares/advertiserMiddleware.js";
+import fileUpload from "express-fileupload";
 
 const router = Router();
+router.use(fileUpload());
 
 router.get('/events', eventController.getAllEvents);
 router.post('/events', verifyToken, eventController.createEvent);

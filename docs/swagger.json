@@ -42,6 +42,9 @@
       "post": {
         "summary": "Create a new event",
         "operationId": "createEvent",
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "Events"
         ],
@@ -51,7 +54,6 @@
           }
         ],
         "requestBody": {
-          "description": "Event to create, including optional image",
           "required": true,
           "content": {
             "multipart/form-data": {
@@ -85,7 +87,7 @@
                     "description": "Price of the event",
                     "example": 199.99
                   },
-                  "image": {
+                  "eventPicture": {
                     "type": "string",
                     "format": "binary",
                     "description": "Image file for the event"
@@ -969,7 +971,7 @@
             "type": "number",
             "description": "Price of the event"
           },
-          "eventstatus_id": {
+          "eventPicture": {
             "type": "string",
             "description": "Event status ID"
           }
