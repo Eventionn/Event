@@ -58,6 +58,14 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "example": {
+                    "name": "Tech Conference 2024",
+                    "description": "A cutting-edge conference on emerging tech trends.",
+                    "startAt": "2024-05-15T09:00:00Z",
+                    "endAt": "2024-05-16T17:00:00Z",
+                    "price": 199.99,
+                    "image": "example-image.png"
+                  },
                   "name": {
                     "type": "string",
                     "description": "Name of the event"
@@ -372,84 +380,50 @@
         }
       },
       "post": {
-        "summary": "Create a new event",
-        "operationId": "createEvent",
+        "summary": "Create a new address event",
+        "operationId": "createAddressEvent",
         "tags": [
-          "Events"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
+          "AddressEvents"
         ],
         "requestBody": {
-          "description": "Event to create, including optional image",
+          "description": "Address event to create",
           "required": true,
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "example": {
-                    "name": "Tech Conference 2024",
-                    "description": "A cutting-edge conference on emerging tech trends.",
-                    "startAt": "2024-05-15T09:00:00Z",
-                    "endAt": "2024-05-16T17:00:00Z",
-                    "price": 199.99,
-                    "image": "example-image.png"
-                  },
-                  "name": {
-                    "type": "string",
-                    "description": "Name of the event"
-                  },
-                  "description": {
-                    "type": "string",
-                    "description": "Description of the event"
-                  },
-                  "startAt": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "Start date and time of the event"
-                  },
-                  "endAt": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "End date and time of the event"
-                  },
-                  "price": {
-                    "type": "number",
-                    "description": "Price of the event"
-                  },
-                  "image": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "Image file for the event"
-                  }
-                },
-                "required": [
-                  "name",
-                  "description",
-                  "startAt",
-                  "endAt",
-                  "price"
-                ]
+                "$ref": "#/components/schemas/AddressEventInput"
+              },
+              "example": {
+                "event_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+                "roadNumber": 485,
+                "postCode": "94043",
+                "road": "Mountain View",
+                "localtown": "f58c9b62-91f0-42ec-96f0-7cc679c0718a"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Event created successfully",
+            "description": "Address event created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Event"
+                  "$ref": "#/components/schemas/AddressEvent"
+                },
+                "example": {
+                  "id": "b3f5d0a9-22a3-45c0-804b-b1e2b028953b",
+                  "event_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+                  "roadNumber": 485,
+                  "postCode": "94043",
+                  "road": "Mountain View",
+                  "localtown": "f58c9b62-91f0-42ec-96f0-7cc679c0718a"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request - Missing required fields or invalid file format"
+            "description": "Bad Request - Missing required fields"
           },
           "500": {
             "description": "Internal Server Error"
