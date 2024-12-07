@@ -22,6 +22,7 @@ model Event {
   eventStatus    EventStatus @relation(fields: [eventstatus_id], references: [eventStatusID])
   eventstatus_id String      @db.Uuid
   addressEvents  AddressEvent[]
+  eventPicture  String?  @db.VarChar(255)
 
   @@map("Events") 
 }

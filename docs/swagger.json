@@ -45,6 +45,9 @@
         "tags": [
           "Events"
         ],
+        "consumes": [
+          "multipart/form-data"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -54,16 +57,51 @@
           "description": "Event to create",
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/EventInput"
-              },
-              "example": {
-                "name": "Tech Conference 2024",
-                "description": "A cutting-edge conference on emerging tech trends.",
-                "startAt": "2024-05-15T09:00:00Z",
-                "endAt": "2024-05-16T17:00:00Z",
-                "price": 199.99
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the event",
+                    "example": "Tech Conference 2024"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the event",
+                    "example": "A cutting-edge conference on emerging tech trends."
+                  },
+                  "startAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Start date and time of the event",
+                    "example": "2024-05-15T09:00:00Z"
+                  },
+                  "endAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "End date and time of the event",
+                    "example": "2024-05-16T17:00:00Z"
+                  },
+                  "price": {
+                    "type": "number",
+                    "description": "Price of the event",
+                    "example": 199.99
+                  },
+                  "eventPicture": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Event picture file"
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "startAt",
+                  "endAt",
+                  "price",
+                  "eventstatus_id"
+                ]
               }
             }
           }
@@ -986,6 +1024,11 @@
           "eventstatus_id": {
             "type": "string",
             "description": "Event status ID"
+          },
+          "profilePicture": {
+            "type": "string",
+            "format": "binary",
+            "description": "Profile picture file"
           }
         }
       },

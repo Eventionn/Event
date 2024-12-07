@@ -1,6 +1,13 @@
 import eventService from '../services/eventService.js';
 import eventStatusService from '../services/eventStatusService.js';
 import axios from 'axios';
+import { fileURLToPath } from 'url'; 
+import path from 'path';
+import fs from 'fs';
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const eventController = {
 
@@ -91,6 +98,27 @@ const eventController = {
       const userExists = await axios.get(`http://userservice:5001/api/users/${userId}`);
       if (!userExists) {
         return res.status(404).json({ message: 'User not found' });
+      }
+
+      let eventPicturePath = userExists.eventPicturePath;
+
+      if (req.files && req.files.eventPicture) {
+        const eventPicture = req.files.eventPicture;
+  
+        const allowedExtensions = /png|jpeg|jpg|webp/;
+        const fileExtension = path.extname(eventPicture.name).toLowerCase();
+        if (!allowedExtensions.test(fileExtension)) {
+          return res.status(400).json({ message: "Invalid file type. Only PNG, JPEG, and JPG are allowed." });
+        }
+  
+        if (eventPicturePath && fs.existsSync(path.join(__dirname, '../public', eventPicturePath))) {
+          fs.unlinkSync(path.join(__dirname, '../public', eventPicturePath));
+        }
+
+        const uploadPath = path.join(__dirname, '../public/uploads/event_pictures', `${id}-${Date.now()}${fileExtension}`);
+        await eventPicture.mv(uploadPath); 
+  
+        eventPicturePath = `/uploads/event_pictures/${path.basename(uploadPath)}`;
       }
 
       const eventStatusPending = await eventStatusService.getEventStatusByStatus('Pendente');
