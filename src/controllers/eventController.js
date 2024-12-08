@@ -165,13 +165,14 @@ const eventController = {
       };
 
       //await eventService.sendNotification(notificationData, token);
+
       
       //const user = await axios.get(`http://localhost:5001/api/users/${event.userId}`);
-      const user = await axios.get(`http://userservice:5001/api/users/${event.userId}`);
+      const user = await axios.get(`http://userservice:5001/api/users/${userId}`);
 
       if (user && user.data.usertype_id === '2c6aab42-7274-424e-8c10-e95441cb95c3') {
         //await axios.put(`http://localhost:5001/api/users/${event.userId}`);
-        await axios.put(`http://userservice:5001/api/users/${event.userId}`);
+        await axios.put(`http://userservice:5001/api/users/${userId}`);
       }
 
       res.status(201).json(newEvent);
