@@ -108,6 +108,7 @@ const eventController = {
    */
   async createEvent(req, res) {
     try {
+      const authToken = req.headers['authorization']
       const { name, description, startAt, endAt, price } = req.body;
       const userId = req.user.userID;
 
@@ -165,14 +166,30 @@ const eventController = {
       };
 
       //await eventService.sendNotification(notificationData, token);
-
       
-      //const user = await axios.get(`http://localhost:5001/api/users/${event.userId}`);
+      //const user = await axios.get(`http://localhost:5001/api/users/${userId}`);
       const user = await axios.get(`http://userservice:5001/api/users/${userId}`);
 
+      const updatedUser = {
+        ...user.data,
+        usertype_id: '123e4567-e89b-12d3-a456-426614174001'
+      };
+
       if (user && user.data.usertype_id === '2c6aab42-7274-424e-8c10-e95441cb95c3') {
-        //await axios.put(`http://localhost:5001/api/users/${event.userId}`);
-        await axios.put(`http://userservice:5001/api/users/${userId}`);
+        /*await axios.put(`http://localhost:5001/api/users/${userId}`, updatedUser,
+          {
+            headers: {
+              Authorization: authToken
+            }
+          }
+        );*/
+        await axios.put(`http://userservice:5001/api/users/${userId}`, updatedUser,
+          {
+            headers: {
+              Authorization: authToken
+            }
+          }
+        );
       }
 
       res.status(201).json(newEvent);
