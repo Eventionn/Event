@@ -61,7 +61,8 @@ const addressEventController = {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
-      const localtownExists = await axios.get(`http://locationservice:5005/api/location/${localtown}`);
+      // const localtownExists = await axios.get(`http://locationservice:5005/api/location/${localtown}`);
+      const localtownExists = await axios.get(`http://localhost:5010/location/api/location/${localtown}`);
 
       if (!localtownExists) {
         return res.status(404).json({ message: 'Location not found' });

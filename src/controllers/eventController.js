@@ -118,8 +118,9 @@ const eventController = {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
-      //const userExists = await axios.get(`http://localhost:5001/api/users/${userId}`);
-      const userExists = await axios.get(`http://userservice:5001/api/users/${userId}`);
+      const userExists = await axios.get(`http://localhost:5010/user/api/users/${userId}`);
+      // const userExists = await axios.get(`http://localhost:5001/api/users/${userId}`);
+      // const userExists = await axios.get(`http://userservice:5001/api/users/${userId}`);
       if (!userExists) {
         return res.status(404).json({ message: 'User not found' });
       }
@@ -168,7 +169,8 @@ const eventController = {
       //await eventService.sendNotification(notificationData, token);
       
       //const user = await axios.get(`http://localhost:5001/api/users/${userId}`);
-      const user = await axios.get(`http://userservice:5001/api/users/${userId}`);
+      // const user = await axios.get(`http://userservice:5001/api/users/${userId}`);
+      const user = await axios.get(`http://localhost:5010/user/api/users/${userId}`);
 
       const updatedUser = {
         ...user.data,
@@ -183,13 +185,20 @@ const eventController = {
             }
           }
         );*/
-        await axios.put(`http://userservice:5001/api/users/${userId}`, updatedUser,
+        await axios.put(`http://localhost:5010/user/api/users/${userId}`, updatedUser,
           {
             headers: {
               Authorization: authToken
             }
           }
         );
+        // await axios.put(`http://userservice:5001/api/users/${userId}`, updatedUser,
+        //   {
+        //     headers: {
+        //       Authorization: authToken
+        //     }
+        //   }
+        // );
       }
 
       res.status(201).json(newEvent);
@@ -311,14 +320,14 @@ const eventController = {
         return res.status(404).json({ message: 'Event not found' });
       }
 
-      //const eventTickets = await axios.get(`http://localhost:5009/api/tickets/event/${eventId}`);
-      const eventTickets = await axios.get(`http://userineventservice:5009/api/tickets/event/${eventId}`);
+      const eventTickets = await axios.get(`http://localhost:5010/userinevent/api/tickets/event/${eventId}`);
+      // const eventTickets = await axios.get(`http://userineventservice:5009/api/tickets/event/${eventId}`);
 
       const payments = (
         await Promise.all(
           eventTickets.data.map(async (ticket) => {
-            //const response = await axios.get(`http://localhost:5004/api/payments/ticket/${ticket.ticketID}`);
-            const response = await axios.get(`http://paymentservice:5004/api/payments/ticket/${ticket.ticketID}`);
+            const response = await axios.get(`http://localhost:5010/payment/api/payments/ticket/${ticket.ticketID}`);
+            // const response = await axios.get(`http://paymentservice:5004/api/payments/ticket/${ticket.ticketID}`);
             return response.data;
           })
         )
@@ -327,7 +336,7 @@ const eventController = {
       const updatedEvent = await eventService.updateEventStatus(eventId, eventStatusCancelled.eventStatusID);
       await Promise.all(
         payments.map(async (payment) => {
-          //await axios.put(`http://localhost:5004/api/payments/${payment.paymentID}/cancel`);
+          await axios.put(`http://localhost:5010/payment/api/payments/${payment.paymentID}/cancel`);
           await axios.put(`http://paymentservice:5004/api/payments/${payment.paymentID}/cancel`);
         })
       );
