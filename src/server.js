@@ -11,8 +11,8 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 
 // Ler certificados SSL/TLS
-const key = fs.readFileSync(path.resolve('../key.pem'));
-const cert = fs.readFileSync(path.resolve('../cert.pem'));
+const key = fs.readFileSync(path.resolve('/usr/src/app/key.pem'));
+const cert = fs.readFileSync(path.resolve('/usr/src/app/cert.pem'));
 
 app.use(express.json());
 app.use('/api', routes);
@@ -31,6 +31,10 @@ app.get('/', (req, res) => {
 //});
 
 // Criar servidor HTTPS
-https.createServer({ key, cert }, app).listen(PORT, () => {
+https.createServer({ 
+  key, 
+  cert, 
+  passphrase: 'benfica' // passphrase
+}, app).listen(PORT, () => {
   console.log(`HTTPS server listening on port ${PORT}`);
 });
