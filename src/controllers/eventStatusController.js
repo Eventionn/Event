@@ -6,6 +6,8 @@ const eventStatusController = {
    * Get all event statuses
    * @route {GET} /event-statuses
    * @returns {Array} List of event statuses
+   * @description Fetches all event statuses from the database.
+   * If no event statuses are found, it returns a 404 response.
    */
   async getAllEventStatuses(req, res) {
     try {
@@ -28,6 +30,8 @@ const eventStatusController = {
    * @route {GET} /event-statuses/:eventStatusID
    * @param {string} eventStatusID - The ID of the event status
    * @returns {Object} The event status object
+   * @description Fetches a specific event status by its ID.
+   * If the event status is not found, it returns a 404 response.
    */
   async getEventStatusById(req, res) {
     try {
@@ -51,6 +55,8 @@ const eventStatusController = {
    * @route {POST} /event-statuses
    * @bodyparam {Object} eventStatusData - The data for creating an event status
    * @returns {Object} The newly created event status
+   * @description Creates a new event status with the provided data.
+   * If any required field is missing, it returns a 400 response.
    */
   async createEventStatus(req, res) {
     try {
@@ -75,6 +81,8 @@ const eventStatusController = {
    * @param {string} eventStatusID - The ID of the event status to update
    * @bodyparam {Object} eventStatusData - The new data for the event status
    * @returns {Object} The updated event status
+   * @description Updates an existing event status with the provided data.
+   * If the event status is not found, it returns a 404 response.
    */
   async updateEventStatus(req, res) {
     try {
@@ -100,6 +108,8 @@ const eventStatusController = {
    * @route {DELETE} /event-statuses/:eventStatusID
    * @param {string} eventStatusID - The ID of the event status to delete
    * @returns {Object} Success message or error
+   * @description Deletes an event status by its ID.
+   * If the event status is not found, it returns a 404 response.
    */
   async deleteEventStatus(req, res) {
     try {

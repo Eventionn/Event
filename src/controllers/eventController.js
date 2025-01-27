@@ -4,7 +4,8 @@ import axios from 'axios';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid'; 
+import { v4 as uuidv4 } from 'uuid';
+import https from 'https';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,6 +16,8 @@ const eventController = {
    * Get all events
    * @route {GET} /events
    * @returns {Array} List of events
+   * @description Fetches all events from the database.
+   * If no events are found, it returns a 404 response.
    */
   async getAllEvents(req, res) {
     try {
@@ -35,7 +38,9 @@ const eventController = {
   /**
    * Get suspended events
    * @route {GET} /events/suspended
-   * @returns {Array} List of events
+   * @returns {Array} List of suspended events
+   * @description Fetches all suspended events.
+   * If no suspended events are found, it returns a 404 response.
    */
   async getSuspendedEvents(req, res) {
     try {
@@ -54,10 +59,35 @@ const eventController = {
   },
 
   /**
+  * Get approved events
+  * @route {GET} /events/approved
+  * @returns {Array} List of approved events
+  * @description Fetches all approved events.
+  * If no approved events are found, it returns a 404 response.
+  */
+  async getApprovedEvents(req, res) {
+    try {
+      const approvedEvents = await eventService.getApprovedEvents();
+
+      if (approvedEvents == null || approvedEvents.length === 0) {
+        return res.status(404).json({ message: 'No approved events found' });
+      }
+
+      res.status(200).json(approvedEvents);
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching events' });
+    }
+  },
+
+  /**
    * Get user events
    * @route {GET} /events/my
-   * @param {string} id - The ID of the event
-   * @returns {Array} List of events
+   * @param {string} id - The ID of the user
+   * @returns {Array} List of events associated with the user
+   * @description Fetches all events associated with the current user based on their ID.
+   * If no events are found, it returns a 404 response.
    */
   async getUserEvents(req, res) {
     try {
@@ -80,8 +110,10 @@ const eventController = {
   /**
    * Get a specific event by ID
    * @route {GET} /events/:id
-   * @param {string} id - The ID of the event
+   * @param {string} id - The ID of the event to fetch
    * @returns {Object} The event object
+   * @description Fetches a specific event based on its ID.
+   * If no event is found, it returns a 404 response.
    */
   async getEventById(req, res) {
     try {
@@ -100,11 +132,15 @@ const eventController = {
     }
   },
 
+
   /**
    * Create a new event
    * @route {POST} /events
-   * @bodyparam {Object} eventData - The data for creating an event
+   * @bodyparam {Object} eventData - The data for creating an event (name, description, startAt, endAt, price, eventPicture)
    * @returns {Object} The newly created event
+   * @description Creates a new event using the provided data.
+   * If any required data is missing, it returns a 400 response.
+   * If the event is successfully created, it returns a 201 response.
    */
   async createEvent(req, res) {
     try {
@@ -122,9 +158,10 @@ const eventController = {
       const agent = new https.Agent({ rejectUnauthorized: false });    
 
       //const userExists = await axios.get(`http://nginx-api-gateway:5010/user/api/users/${userId}`);
-      // const userExists = await axios.get(`http://localhost:5001/api/users/${userId}`);
+      //const userExists = await axios.get(`http://localhost:5001/api/users/${userId}`);
       // const userExists = await axios.get(`http://userservice:5001/api/users/${userId}`);
-      const userExists = await axios.get(`http://nginx-api-gateway:5010/user/api/users/${userId}`, { httpsAgent: agent });  //https api gateway
+      const userExists = await axios.get(`https://nginx-api-gateway:5010/user/api/users/${userId}`, { httpsAgent: agent });  //https api gateway
+
       if (!userExists) {
         return res.status(404).json({ message: 'User not found' });
       }
@@ -171,11 +208,11 @@ const eventController = {
       };
 
       //await eventService.sendNotification(notificationData, token);
-      
+
       //const user = await axios.get(`http://localhost:5001/api/users/${userId}`);
       // const user = await axios.get(`http://userservice:5001/api/users/${userId}`);
       //const user = await axios.get(`http://nginx-api-gateway:5010/user/api/users/${userId}`);
-      const user = await axios.get(`http://nginx-api-gateway:5010/user/api/users/${userId}`, { httpsAgent: agent });  //https api gateway
+      const user = await axios.get(`https://nginx-api-gateway:5010/user/api/users/${userId}`, { httpsAgent: agent });  //https api gateway
 
       const updatedUser = {
         ...user.data,
@@ -183,14 +220,14 @@ const eventController = {
       };
 
       if (user && user.data.usertype_id === '2c6aab42-7274-424e-8c10-e95441cb95c3') {
-        /*await axios.put(`http://localhost:5001/api/users/${userId}`, updatedUser,
-          {
-            headers: {
-              Authorization: authToken
-            }
-          }
-        );*/
-        await axios.put(`http://nginx-api-gateway:5010/user/api/users/${userId}`, updatedUser, { httpsAgent: agent }, //https api gateway
+      //   await axios.put(`http://localhost:5001/api/users/${userId}`, updatedUser, { httpsAgent: agent },
+      //     {
+      //       headers: {
+      //         Authorization: authToken
+      //       }
+      //     }
+      //   );
+        await axios.put(`https://nginx-api-gateway:5010/user/api/users/${userId}`, updatedUser, { httpsAgent: agent }, //https api gateway
           {
             headers: {
               Authorization: authToken
@@ -204,7 +241,7 @@ const eventController = {
         //     }
         //   }
         // );
-      }
+       }
 
       res.status(201).json(newEvent);
 
@@ -218,43 +255,45 @@ const eventController = {
    * Update an existing event
    * @route {PUT} /events/:id
    * @param {string} id - The ID of the event to update
-   * @bodyparam {Object} eventData - The new data for the event
+   * @bodyparam {Object} eventData - The updated data for the event
    * @returns {Object} The updated event
+   * @description Updates an existing event with the provided data.
+   * Returns a 404 if the event is not found, or a 200 with the updated event data if successful.
    */
   async updateEvent(req, res) {
     try {
       const eventId = req.params.id;
       const { name, description, startAt, endAt, price } = req.body;
-  
+
       const numericPrice = price ? parseFloat(price) : undefined;
-  
+
       const event = await eventService.getEventById(eventId);
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
       }
-  
+
       let eventPicturePath = event.eventPicturePath;
-  
+
       if (req.files && req.files.eventPicture) {
         const eventPicture = req.files.eventPicture;
-  
+
         const allowedExtensions = /png|jpeg|jpg|webp/;
         const fileExtension = path.extname(eventPicture.name).toLowerCase();
         if (!allowedExtensions.test(fileExtension)) {
           return res.status(400).json({ message: "Invalid file type. Only PNG, JPEG, and JPG are allowed." });
         }
-  
+
         if (eventPicturePath && fs.existsSync(path.join(__dirname, '../public', eventPicturePath))) {
           fs.unlinkSync(path.join(__dirname, '../public', eventPicturePath));
         }
-  
+
         const uniqueName = `${uuidv4()}${fileExtension}`;
         const uploadPath = path.join(__dirname, '../public/uploads/event_pictures', uniqueName);
         await eventPicture.mv(uploadPath);
-  
+
         eventPicturePath = `/uploads/event_pictures/${path.basename(uploadPath)}`;
       }
-  
+
       const updatedEventData = {
         ...(name && { name }),
         ...(description && { description }),
@@ -263,10 +302,10 @@ const eventController = {
         ...(numericPrice !== undefined && { price: numericPrice }),
         ...(eventPicturePath && { eventPicture: eventPicturePath }),
       };
-  
+
       const updatedEvent = await eventService.updateEvent(eventId, updatedEventData);
       res.status(200).json(updatedEvent);
-  
+
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Error updating event' });
@@ -278,6 +317,7 @@ const eventController = {
    * @route {PUT} /events/:id/status
    * @param {string} id - The ID of the event to approve
    * @returns {Object} The updated event
+   * @description This route allows updating the status of an event to "approved". The event status is initially "pending", and only events with the "pending" status can be approved.
    */
   async updateEventStatus(req, res) {
     try {
@@ -311,8 +351,9 @@ const eventController = {
   /**
    * Cancel an event
    * @route {PUT} /events/:id/status
-   * @param {string} id - The ID of the event to update
+   * @param {string} id - The ID of the event to cancel
    * @returns {Object} The updated event
+   * @description This route allows updating the status of an event to "Cancelado". When an event is cancelled, any associated payments for tickets will also be updated to "Cancelado".
    */
   async cancelEvent(req, res) {
     try {
@@ -330,14 +371,14 @@ const eventController = {
 
       //const eventTickets = await axios.get(`http://nginx-api-gateway:5010/userinevent/api/tickets/event/${eventId}`);
       // const eventTickets = await axios.get(`http://userineventservice:5009/api/tickets/event/${eventId}`);
-      const eventTickets = await axios.get(`http://nginx-api-gateway:5010/userinevent/api/tickets/event/${eventId}`, { httpsAgent: agent });
+      const eventTickets = await axios.get(`https://nginx-api-gateway:5010/userinevent/api/tickets/event/${eventId}`, { httpsAgent: agent });
 
       const payments = (
         await Promise.all(
           eventTickets.data.map(async (ticket) => {
             //const response = await axios.get(`http://nginx-api-gateway:5010/payment/api/payments/ticket/${ticket.ticketID}`);
             // const response = await axios.get(`http://paymentservice:5004/api/payments/ticket/${ticket.ticketID}`);
-            const response = await axios.get(`http://nginx-api-gateway:5010/payment/api/payments/ticket/${ticket.ticketID}`, { httpsAgent: agent });
+            const response = await axios.get(`https://nginx-api-gateway:5010/payment/api/payments/ticket/${ticket.ticketID}`, { httpsAgent: agent });
             return response.data;
           })
         )
@@ -348,7 +389,7 @@ const eventController = {
         payments.map(async (payment) => {
           //await axios.put(`http://nginx-api-gateway:5010/payment/api/payments/${payment.paymentID}/cancel`);
           //await axios.put(`http://nginx-api-gateway:5004/api/payments/${payment.paymentID}/cancel`);
-          await axios.put(`http://nginx-api-gateway:5010/payment/api/payments/${payment.paymentID}/cancel`, { httpsAgent: agent });
+          await axios.put(`https://nginx-api-gateway:5010/payment/api/payments/${payment.paymentID}/cancel`, { httpsAgent: agent });
         })
       );
 
@@ -365,6 +406,8 @@ const eventController = {
    * @route {DELETE} /events/:id
    * @param {string} id - The ID of the event to delete
    * @returns {Object} Success message or error
+   * @description Deletes a specific event by ID.
+   * If the event is not found, it returns a 404 response.
    */
   async deleteEvent(req, res) {
     try {

@@ -11,21 +11,21 @@
   },
   "servers": [
     {
-      "url": "/user",
-      "description": "Local server"
+      "url": "/api"
     }
   ],
   "paths": {
-    "/api/events": {
+    "/events": {
       "get": {
-        "summary": "Get all events",
+        "summary": "Retrieve all events",
+        "description": "This endpoint retrieves a list of all available events. If no events are found, a 404 response is returned. This endpoint does not require authentication.",
         "operationId": "getAllEvents",
         "tags": [
           "Events"
         ],
         "responses": {
           "200": {
-            "description": "A list of events",
+            "description": "Successfully retrieved a list of events.",
             "content": {
               "application/json": {
                 "schema": {
@@ -36,11 +36,42 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "No events found.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "noEvents": {
+                    "summary": "No events available",
+                    "value": {
+                      "message": "No events found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An unexpected error occurred on the server while fetching the events.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error fetching events"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
       "post": {
         "summary": "Create a new event",
+        "description": "This endpoint allows users to create a new event. The event requires basic information such as name, description, start and end times, price, and an optional image file. The user must be authenticated, and the request should include a valid bearer token in the Authorization header. During the process, the user's type will be automatically updated to 'Anunciante' if they are not already one.",
         "operationId": "createEvent",
         "consumes": [
           "multipart/form-data"
@@ -54,6 +85,7 @@
           }
         ],
         "requestBody": {
+          "description": "The data required to create a new event. All fields except the event image are mandatory.",
           "required": true,
           "content": {
             "multipart/form-data": {
@@ -62,35 +94,36 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "description": "Name of the event",
+                    "description": "The name of the event. This should be a concise and descriptive title.",
                     "example": "Tech Conference 2024"
                   },
                   "description": {
                     "type": "string",
-                    "description": "Description of the event",
+                    "description": "A detailed description of the event, outlining its purpose, agenda, or any other relevant information.",
                     "example": "A cutting-edge conference on emerging tech trends."
                   },
                   "startAt": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "Start date and time of the event",
+                    "description": "The start date and time of the event in ISO 8601 format (e.g., YYYY-MM-DDTHH:mm:ssZ).",
                     "example": "2024-05-15T09:00:00Z"
                   },
                   "endAt": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "End date and time of the event",
+                    "description": "The end date and time of the event in ISO 8601 format (e.g., YYYY-MM-DDTHH:mm:ssZ).",
                     "example": "2024-05-16T17:00:00Z"
                   },
                   "price": {
                     "type": "number",
-                    "description": "Price of the event",
+                    "format": "float",
+                    "description": "The price of the event. This value should be a positive number, representing the cost in the applicable currency.",
                     "example": 199.99
                   },
                   "eventPicture": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Image file for the event"
+                    "description": "An optional image file representing the event. Accepted file formats include PNG, JPEG, and JPG."
                   }
                 },
                 "required": [
@@ -106,27 +139,74 @@
         },
         "responses": {
           "201": {
-            "description": "Event created successfully",
+            "description": "The event was successfully created. The response includes the details of the newly created event.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Event"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful creation",
+                    "value": {
+                      "id": "123e4567-e89b-12d3-a456-426614174000",
+                      "name": "Tech Conference 2024",
+                      "description": "A cutting-edge conference on emerging tech trends.",
+                      "startAt": "2024-05-15T09:00:00Z",
+                      "endAt": "2024-05-16T17:00:00Z",
+                      "price": 199.99,
+                      "eventPicture": "/uploads/event_pictures/tech_conf_2024.png",
+                      "userId": "123e4567-e89b-12d3-a456-426614174001",
+                      "eventstatus_id": "456e4567-e89b-12d3-a456-426614174002"
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request - Missing required fields or invalid file format"
+            "description": "Bad Request - The request is invalid due to missing required fields or an invalid file format.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "missingFields": {
+                    "summary": "Missing required fields",
+                    "value": {
+                      "message": "Missing required fields"
+                    }
+                  },
+                  "invalidFileFormat": {
+                    "summary": "Invalid file format",
+                    "value": {
+                      "message": "Invalid file type. Only PNG, JPEG, and JPG are allowed."
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Internal Server Error - An unexpected error occurred on the server while processing the request.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error creating event"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/events/my": {
+    "/events/my": {
       "get": {
         "summary": "Get the events of the current user",
+        "description": "This endpoint retrieves all events created by the authenticated user. The request requires a valid bearer token for authentication.",
         "operationId": "getUserEvents",
         "security": [
           {
@@ -138,7 +218,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A list of the user's events",
+            "description": "Successfully retrieved the user's events.",
             "content": {
               "application/json": {
                 "schema": {
@@ -151,20 +231,57 @@
             }
           },
           "401": {
-            "description": "Unauthorized - Invalid or missing token"
+            "description": "Unauthorized - Invalid or missing token.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "summary": "Invalid token",
+                    "value": {
+                      "message": "Unauthorized - Missing or invalid token"
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "No events found for the user"
+            "description": "No events found for the user.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "noEvents": {
+                    "summary": "User has no events",
+                    "value": {
+                      "message": "No events found"
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Internal Server Error - An unexpected error occurred on the server while fetching the user's events.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error fetching events"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/events/{id}": {
+    "/events/{id}": {
       "get": {
         "summary": "Get a specific event by ID",
+        "description": "Retrieve detailed information about a specific event using its unique ID.",
         "operationId": "getEventById",
         "tags": [
           "Events"
@@ -174,15 +291,16 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the event",
+            "description": "The unique identifier of the event.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "123e4567-e89b-12d3-a456-426614174000"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Event found",
+            "description": "Successfully retrieved the event.",
             "content": {
               "application/json": {
                 "schema": {
@@ -192,16 +310,41 @@
             }
           },
           "404": {
-            "description": "Event not found"
+            "description": "The event with the specified ID was not found.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "notFound": {
+                    "summary": "Event not found",
+                    "value": {
+                      "message": "Event not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An unexpected error occurred on the server.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error fetching event"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
       "put": {
         "summary": "Update a specific event by ID",
+        "description": "Update the details of an existing event using its unique ID. This endpoint allows modifications to fields like name, description, date, price, and event picture.",
         "operationId": "updateEvent",
-        "consumes": [
-          "multipart/form-data"
-        ],
         "tags": [
           "Events"
         ],
@@ -210,14 +353,15 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the event",
+            "description": "The unique identifier of the event to be updated.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "123e4567-e89b-12d3-a456-426614174000"
             }
           }
         ],
         "requestBody": {
-          "description": "Updated event data",
+          "description": "Data for updating the event. Fields that are not provided will remain unchanged.",
           "required": true,
           "content": {
             "multipart/form-data": {
@@ -226,74 +370,118 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "description": "Name of the event",
+                    "description": "Updated name of the event.",
                     "example": "Tech Conference 2024 (Updated)"
                   },
                   "description": {
                     "type": "string",
-                    "description": "Description of the event",
-                    "example": "A cutting-edge conference on emerging tech trends."
+                    "description": "Updated description of the event.",
+                    "example": "An updated cutting-edge conference on emerging tech trends."
                   },
                   "startAt": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "Start date and time of the event",
+                    "description": "Updated start date and time of the event.",
                     "example": "2024-05-15T09:00:00Z"
                   },
                   "endAt": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "End date and time of the event",
+                    "description": "Updated end date and time of the event.",
                     "example": "2024-05-16T17:00:00Z"
                   },
                   "price": {
                     "type": "number",
-                    "description": "Price of the event",
-                    "example": 199.99
+                    "description": "Updated price of the event.",
+                    "example": 249.99
                   },
                   "eventPicture": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Image file for the event"
+                    "description": "New image file for the event."
                   }
                 }
-              },
-              "required": [
-                "name",
-                "description",
-                "startAt",
-                "endAt",
-                "price"
-              ],
-              "example": {
-                "name": "Tech Conference 2024 (Updated)",
-                "description": "An updated cutting-edge conference on emerging tech trends.",
-                "startAt": "2024-05-15T10:00:00Z",
-                "endAt": "2024-05-16T18:00:00Z",
-                "price": 249.99,
-                "eventstatus_id": "44444444-4444-4444-4444-444444444444"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Event updated successfully",
+            "description": "The event was updated successfully.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Event"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Updated event details",
+                    "value": {
+                      "id": "123e4567-e89b-12d3-a456-426614174000",
+                      "name": "Tech Conference 2024 (Updated)",
+                      "description": "An updated cutting-edge conference on emerging tech trends.",
+                      "startAt": "2024-05-15T10:00:00Z",
+                      "endAt": "2024-05-16T18:00:00Z",
+                      "price": 249.99,
+                      "eventPicture": "/uploads/event_pictures/updated_conference_image.jpg",
+                      "userId": "123e4567-e89b-12d3-a456-426614174001",
+                      "eventstatus_id": "44444444-4444-4444-4444-444444444444"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data, such as unsupported file types.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalidFileType": {
+                    "summary": "Invalid file type",
+                    "value": {
+                      "message": "Invalid file type. Only PNG, JPEG, and JPG are allowed."
+                    }
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Event not found"
+            "description": "The event with the specified ID was not found.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "notFound": {
+                    "summary": "Event not found",
+                    "value": {
+                      "message": "Event not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An unexpected error occurred while updating the event.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error updating event"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
       "delete": {
         "summary": "Delete a specific event by ID",
+        "description": "Deletes an event using its unique ID. If the event does not exist, a 404 error is returned.",
         "operationId": "deleteEvent",
         "tags": [
           "Events"
@@ -303,25 +491,54 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the event to delete",
+            "description": "The unique identifier of the event to delete.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "123e4567-e89b-12d3-a456-426614174000"
             }
           }
         ],
         "responses": {
           "204": {
-            "description": "Event deleted successfully"
+            "description": "Event deleted successfully. No content is returned."
           },
           "404": {
-            "description": "Event not found"
+            "description": "The event with the specified ID was not found.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "notFound": {
+                    "summary": "Event not found",
+                    "value": {
+                      "message": "Event not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An unexpected error occurred while deleting the event.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error deleting event"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/events/{id}/status": {
+    "/events/{id}/status": {
       "put": {
         "summary": "Approve a specific event by ID",
+        "description": "Allows an admin to approve an event by updating its status to 'Aprovado'. The event must have a current status of 'Pendente'.",
         "operationId": "updateEventStatus",
         "tags": [
           "Events"
@@ -336,15 +553,16 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the event",
+            "description": "The unique identifier of the event to approve.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "123e4567-e89b-12d3-a456-426614174000"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Event status updated successfully",
+            "description": "Event status updated successfully to 'Approved'.",
             "content": {
               "application/json": {
                 "schema": {
@@ -353,15 +571,64 @@
               }
             }
           },
+          "400": {
+            "description": "Event status is not 'Pending'.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "notPending": {
+                    "summary": "Invalid status",
+                    "value": {
+                      "message": "Event status is not pending"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "404": {
-            "description": "Event not found"
+            "description": "Event or required status not found.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "eventNotFound": {
+                    "summary": "Event not found",
+                    "value": {
+                      "message": "Event not found"
+                    }
+                  },
+                  "statusNotFound": {
+                    "summary": "Status not found",
+                    "value": {
+                      "message": "Event status not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An unexpected error occurred while updating the event status.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error updating event status"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/events/{id}/cancel": {
+    "/events/{id}/cancel": {
       "put": {
         "summary": "Cancel a specific event by ID",
+        "description": "Allows the cancellation of a specific event by updating its status to 'Cancelado' and processing associated refunds for ticket purchases.",
         "operationId": "cancelEvent",
         "tags": [
           "Events"
@@ -376,32 +643,76 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the event",
+            "description": "The unique identifier of the event to cancel.",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "123e4567-e89b-12d3-a456-426614174000"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Event cancelled successfully",
+            "description": "Event cancelled successfully. Refunds for associated tickets have been processed.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Event"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Event cancelled successfully",
+                    "value": {
+                      "eventID": "123e4567-e89b-12d3-a456-426614174000",
+                      "status": "Cancelled"
+                    }
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Event not found"
+            "description": "Event not found or required status not found.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "eventNotFound": {
+                    "summary": "Event not found",
+                    "value": {
+                      "message": "Event not found"
+                    }
+                  },
+                  "statusNotFound": {
+                    "summary": "Status not found",
+                    "value": {
+                      "message": "Event status not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An unexpected error occurred while processing the cancellation.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error updating event status"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/events/suspended": {
+    "/events/suspended": {
       "get": {
         "summary": "Get all suspended events",
+        "description": "Retrieve a list of all events that are currently suspended. This endpoint is typically restricted to admin users.",
         "operationId": "getSuspendedEvents",
         "tags": [
           "Events"
@@ -426,30 +737,169 @@
             }
           },
           "404": {
-            "description": "No suspended events found"
+            "description": "No suspended events found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "noEvents": {
+                    "summary": "No suspended events",
+                    "value": {
+                      "message": "No suspended events found"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized - Invalid or missing token"
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "summary": "Invalid or missing token",
+                    "value": {
+                      "message": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "Forbidden - Admin access required"
+            "description": "Forbidden - Admin access required",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "forbidden": {
+                    "summary": "Admin access required",
+                    "value": {
+                      "message": "Forbidden - Admin access required"
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error fetching events"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/addressEvents": {
+    "/events/approved": {
+      "get": {
+        "summary": "Get all approved events",
+        "description": "Retrieve a list of all events that are currently approved and will be used by the users of the application. This list contains events that have been validated and made available to the users for interaction.",
+        "operationId": "getApprovedEvents",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of approved events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No approved events found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "noEvents": {
+                    "summary": "No approved events",
+                    "value": {
+                      "message": "No approved events found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unauthorized": {
+                    "summary": "Invalid or missing token",
+                    "value": {
+                      "message": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Admin access required",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "forbidden": {
+                    "summary": "Admin access required",
+                    "value": {
+                      "message": "Forbidden - Admin access required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "serverError": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "message": "Error fetching events"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/addressEvents": {
       "get": {
         "summary": "Get all address events",
         "operationId": "getAllAddressEvents",
+        "description": "This endpoint retrieves a list of all address events stored in the system. Address events represent specific locations tied to a certain event. If no address events are found, a 404 error is returned.",
         "tags": [
           "AddressEvents"
         ],
         "responses": {
           "200": {
-            "description": "A list of address events",
+            "description": "A list of address events retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -460,12 +910,19 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "No address events found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "post": {
         "summary": "Create a new address event",
         "operationId": "createAddressEvent",
+        "description": "This endpoint allows you to create a new address event by providing the address details, such as the event ID, road name, road number, postal code, and the localtown. If any required fields are missing, it returns a 400 error.",
         "tags": [
           "AddressEvents"
         ],
@@ -515,10 +972,11 @@
         }
       }
     },
-    "/api/addressEvents/{id}": {
+    "/addressEvents/{id}": {
       "get": {
         "summary": "Get a specific address event by ID",
         "operationId": "getAddressEventById",
+        "description": "This endpoint allows you to retrieve a specific address event using its unique ID. If no address event is found for the given ID, it returns a 404 error.",
         "tags": [
           "AddressEvents"
         ],
@@ -535,7 +993,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Address event found",
+            "description": "Address event found successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -546,12 +1004,16 @@
           },
           "404": {
             "description": "Address event not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "put": {
         "summary": "Update a specific address event by ID",
         "operationId": "updateAddressEvent",
+        "description": "This endpoint allows you to update the details of a specific address event by providing the ID. You can modify the road, road number, postal code, and localtown. If the address event is not found, it returns a 404 error.",
         "tags": [
           "AddressEvents"
         ],
@@ -597,12 +1059,16 @@
           },
           "404": {
             "description": "Address event not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "delete": {
         "summary": "Delete a specific address event by ID",
         "operationId": "deleteAddressEvent",
+        "description": "This endpoint allows you to delete a specific address event by ID. If the address event is found and deleted, it returns a 204 status code. If the event is not found, it returns a 404 error.",
         "tags": [
           "AddressEvents"
         ],
@@ -623,14 +1089,18 @@
           },
           "404": {
             "description": "Address event not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
-    "/api/routesEvents": {
+    "/routesEvents": {
       "get": {
         "summary": "Get all routes events",
         "operationId": "getAllRoutesEvents",
+        "description": "This endpoint retrieves a list of all routes events stored in the system. Routes events represent specific route points related to an event, and are crucial for mapping and planning purposes. If no routes events are found, a 404 error will be returned.",
         "tags": [
           "RoutesEvents"
         ],
@@ -647,12 +1117,19 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "No routes events found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "post": {
         "summary": "Create a new routes event",
         "operationId": "createRoutesEvent",
+        "description": "This endpoint allows you to create a new routes event by providing the required parameters such as latitude, longitude, order, and the related address event ID. If any of these fields are missing, a 400 error will be returned.",
         "tags": [
           "RoutesEvents"
         ],
@@ -689,21 +1166,22 @@
                   "addressEvent_id": "dddddddd-dddd-dddd-dddd-dddddddddddd"
                 }
               }
+            },
+            "400": {
+              "description": "Bad Request - Missing required fields"
+            },
+            "500": {
+              "description": "Internal Server Error"
             }
-          },
-          "400": {
-            "description": "Bad Request - Missing required fields"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
     },
-    "/api/routesEvents/{id}": {
+    "/routesEvents/{id}": {
       "get": {
         "summary": "Get a specific routes event by ID",
         "operationId": "getRoutesEventById",
+        "description": "This endpoint allows you to retrieve a specific routes event using its unique ID. If the routes event does not exist, a 404 error will be returned.",
         "tags": [
           "RoutesEvents"
         ],
@@ -731,12 +1209,16 @@
           },
           "404": {
             "description": "Routes event not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "put": {
         "summary": "Update a specific routes event by ID",
         "operationId": "updateRoutesEvent",
+        "description": "This endpoint allows you to update the details of a specific routes event, such as latitude, longitude, order, and the related address event ID. If the routes event is not found, a 404 error will be returned.",
         "tags": [
           "RoutesEvents"
         ],
@@ -781,12 +1263,16 @@
           },
           "404": {
             "description": "Routes event not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "delete": {
         "summary": "Delete a specific routes event by ID",
         "operationId": "deleteRoutesEvent",
+        "description": "This endpoint allows you to delete a specific routes event by ID. If the routes event is not found, a 404 error will be returned. If the deletion is successful, it returns a 204 status code.",
         "tags": [
           "RoutesEvents"
         ],
@@ -807,13 +1293,17 @@
           },
           "404": {
             "description": "Routes event not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
-    "/api/eventStatus": {
+    "/eventStatus": {
       "get": {
         "summary": "Get all event statuses",
+        "description": "Retrieve a list of all event statuses available in the system.",
         "operationId": "getAllEventStatuses",
         "tags": [
           "EventStatus"
@@ -849,6 +1339,7 @@
       },
       "post": {
         "summary": "Create a new event status",
+        "description": "Create a new event status in the system with the provided status value.",
         "operationId": "createEventStatus",
         "tags": [
           "EventStatus"
@@ -891,9 +1382,10 @@
         }
       }
     },
-    "/api/eventStatus/{id}": {
+    "/eventStatus/{id}": {
       "get": {
         "summary": "Get an event status by ID",
+        "description": "Retrieve the details of a specific event status using its unique identifier.",
         "operationId": "getEventStatusById",
         "tags": [
           "EventStatus"
@@ -934,6 +1426,7 @@
       },
       "put": {
         "summary": "Update an event status",
+        "description": "Update the status of an existing event using the provided ID and new status data.",
         "operationId": "updateEventStatus",
         "tags": [
           "EventStatus"
@@ -988,6 +1481,7 @@
       },
       "delete": {
         "summary": "Delete an event status",
+        "description": "Delete a specific event status from the system using its ID.",
         "operationId": "deleteEventStatus",
         "tags": [
           "EventStatus"

@@ -53,6 +53,28 @@ const eventService = {
   },
 
   /**
+   * Get approved events
+   * @returns {Promise<Array>} List of all events
+   */
+  async getApprovedEvents() {
+    return prisma.event.findMany({
+      include: {
+        eventStatus: true,
+        addressEvents: {
+          include: {
+            routes: true,
+          },
+        },
+      },
+      where: {
+        eventStatus: {
+          eventStatusID: '22222222-2222-2222-2222-222222222222'
+        }
+      }
+    });
+  },
+
+  /**
      * Send a notification to a specific device using Firebase Cloud Messaging
      * @param {Object} notificationData - The notification data containing title and body
      * @param {string} registrationToken - The FCM registration token of the target device
