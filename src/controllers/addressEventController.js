@@ -61,8 +61,12 @@ const addressEventController = {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
+      // Configuração para ignorar certificados autoassinados (apenas para desenvolvimento)
+      const agent = new https.Agent({ rejectUnauthorized: false });    
+
       // const localtownExists = await axios.get(`http://locationservice:5005/api/location/${localtown}`);
-      const localtownExists = await axios.get(`http://nginx-api-gateway:5010/location/api/location/${localtown}`);
+      //const localtownExists = await axios.get(`http://nginx-api-gateway:5010/location/api/location/${localtown}`);
+      const localtownExists = await axios.get(`http://nginx-api-gateway:5010/location/api/location/${localtown}`, { httpsAgent: agent });  //https api gateway
 
       if (!localtownExists) {
         return res.status(404).json({ message: 'Location not found' });
