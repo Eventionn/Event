@@ -11,7 +11,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:5002",
+      "url": "/user",
       "description": "Local server"
     }
   ],
