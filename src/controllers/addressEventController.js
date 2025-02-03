@@ -1,6 +1,14 @@
 import addressEventService from '../services/addressEventService.js';
 import axios from 'axios';
 
+const loadErrorMessages = (lang) => {
+  const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
+  const errorMessages = JSON.parse(fs.readFileSync(errorMessagesPath, 'utf-8'));
+  const languageCode = lang.split(',')[0].split('-')[0];
+
+  return errorMessages[languageCode] || errorMessages.en;
+};
+
 const addressEventController = {
 
 /**
@@ -11,18 +19,20 @@ const addressEventController = {
    * If no address events are found, it returns a 404 response.
    */
   async getAllAddressEvents(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const addressEvents = await addressEventService.getAllAddressEvents();
 
       if (addressEvents == null || addressEvents.length === 0) {
-        return res.status(404).json({ message: 'No address events found' });
+        return res.status(404).json({ message: errorMessages.NO_ADDRESS_EVENTS_FOUND });
       }
 
       res.status(200).json(addressEvents);
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching address events' });
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_ADDRESS_EVENTS });
     }
   },
 
@@ -35,19 +45,21 @@ const addressEventController = {
    * If the address event is not found, it returns a 404 response.
    */
   async getAddressEventById(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const addressEventId = req.params.id;
       const addressEvent = await addressEventService.getAddressEventById(addressEventId);
 
       if (!addressEvent) {
-        return res.status(404).json({ message: 'Address event not found' });
+        return res.status(404).json({ message: errorMessages.ADDRESS_EVENT_NOT_FOUND });
       }
 
       res.status(200).json(addressEvent);
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching address event' });
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_ADDRESS_EVENTS });
     }
   },
 
@@ -66,11 +78,13 @@ const addressEventController = {
    * Additionally, it checks if the provided `localtown` exists through an external service.
    */
   async createAddressEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const { road, roadNumber, postCode, localtown, event_id } = req.body;
       
       if (!road || !roadNumber || !postCode || !localtown || !event_id) {
-        return res.status(400).json({ message: 'Missing required fields' });
+        return res.status(400).json({ message: errorMessages.MISSING_REQUIRED_FIELDS });
       }
 
       // Configuração para ignorar certificados autoassinados (apenas para desenvolvimento)
@@ -81,7 +95,7 @@ const addressEventController = {
       const localtownExists = await axios.get(`http://nginx-api-gateway:5010/location/api/location/${localtown}`, { httpsAgent: agent });  //https api gateway
 
       if (!localtownExists) {
-        return res.status(404).json({ message: 'Location not found' });
+        return res.status(404).json({ message: errorMessages.LOCATION_NOT_FOUND });
       }
 
       const newAddressEvent = await addressEventService.createAddressEvent(req.body);
@@ -89,7 +103,7 @@ const addressEventController = {
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error creating address event' });
+      res.status(500).json({ message: errorMessages.ERROR_CREATING_ADDRESS_EVENT });
     }
   },
 
@@ -103,13 +117,15 @@ const addressEventController = {
    * If the address event is not found, it returns a 404 response.
    */
   async updateAddressEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const addressEventId = req.params.id;
       const addressData = req.body;
 
       const addressEvent = await addressEventService.getAddressEventById(addressEventId);
       if (!addressEvent) {
-        return res.status(404).json({ message: 'Address event not found' });
+        return res.status(404).json({ message: errorMessages.ADDRESS_EVENT_NOT_FOUND });
       }
 
       const updatedAddressEvent = await addressEventService.updateAddressEvent(addressEventId, addressData);
@@ -117,7 +133,7 @@ const addressEventController = {
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error updating address event' });
+      res.status(500).json({ message: errorMessages.ERROR_UPDATING_ADDRESS_EVENT });
     }
   },
 
@@ -130,12 +146,14 @@ const addressEventController = {
    * If the address event is not found, it returns a 404 response.
    */
   async deleteAddressEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const addressEventId = req.params.id;
   
       const addressEvent = await addressEventService.getAddressEventById(addressEventId);
       if (!addressEvent) {
-        return res.status(404).json({ message: 'Address event not found' });
+        return res.status(404).json({ message: errorMessages.ADDRESS_EVENT_NOT_FOUND });
       }
   
       await addressEventService.deleteAddressEvent(addressEventId);
@@ -143,7 +161,7 @@ const addressEventController = {
   
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error deleting address event' });
+      res.status(500).json({ message: errorMessages.ERROR_DELETING_ADDRESS_EVENT });
     }
   }
 };

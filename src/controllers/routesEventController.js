@@ -1,4 +1,18 @@
 import routesEventService from '../services/routesEventService.js';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs';
+
+const loadErrorMessages = (lang) => {
+  const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
+  const errorMessages = JSON.parse(fs.readFileSync(errorMessagesPath, 'utf-8'));
+  const languageCode = lang.split(',')[0].split('-')[0];
+
+  return errorMessages[languageCode] || errorMessages.en;
+};
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const routesEventController = {
 
@@ -10,18 +24,20 @@ const routesEventController = {
    * If no route events are found, it returns a 404 response.
    */
   async getAllRoutesEvents(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const routesEvents = await routesEventService.getAllRoutesEvents();
 
       if (routesEvents == null || routesEvents.length === 0) {
-        return res.status(404).json({ message: 'No routes events found' });
+        return res.status(404).json({ message: errorMessages.NO_ROUTES_EVENTS_FOUND });
       }
 
       res.status(200).json(routesEvents);
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching routes events' });
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_ROUTES_EVENTS });
     }
   },
 
@@ -34,19 +50,21 @@ const routesEventController = {
    * If the route event is not found, it returns a 404 response.
    */
   async getRoutesEventById(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const routeID = req.params.id;
       const routesEvent = await routesEventService.getRoutesEventById(routeID);
 
       if (!routesEvent) {
-        return res.status(404).json({ message: 'Routes event not found' });
+        return res.status(404).json({ message: errorMessages.ROUTES_EVENT_NOT_FOUND });
       }
 
       res.status(200).json(routesEvent);
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching routes event' });
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_ROUTES_EVENT });
     }
   },
 
@@ -63,11 +81,13 @@ const routesEventController = {
    * If any required field is missing, it returns a 400 response.
    */
   async createRoutesEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const { latitude, longitude, order, addressEvent_id } = req.body;
       
       if (latitude === undefined || longitude === undefined || order === undefined || !addressEvent_id) {
-        return res.status(400).json({ message: 'Missing required fields' });
+        return res.status(400).json({ message: errorMessages.MISSING_REQUIRED_FIELDS });
       }
 
       const newRoutesEvent = await routesEventService.createRoutesEvent(req.body);
@@ -75,7 +95,7 @@ const routesEventController = {
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error creating routes event' });
+      res.status(500).json({ message: errorMessages.ERROR_CREATING_ROUTES_EVENT });
     }
   },
 
@@ -89,13 +109,15 @@ const routesEventController = {
    * If the route event is not found, it returns a 404 response.
    */
   async updateRoutesEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const routeID = req.params.id;
       const routesEventData = req.body;
 
       const routesEvent = await routesEventService.getRoutesEventById(routeID);
       if (!routesEvent) {
-        return res.status(404).json({ message: 'Routes event not found' });
+        return res.status(404).json({ message: errorMessages.ROUTES_EVENT_NOT_FOUND });
       }
 
       const updatedRoutesEvent = await routesEventService.updateRoutesEvent(routeID, routesEventData);
@@ -103,10 +125,9 @@ const routesEventController = {
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error updating routes event' });
+      res.status(500).json({ message: errorMessages.ERROR_UPDATING_ROUTES_EVENT });
     }
   },
-
 
   /**
    * Delete a route event
@@ -117,12 +138,14 @@ const routesEventController = {
    * If the route event is not found, it returns a 404 response.
    */
   async deleteRoutesEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const routeID = req.params.id;
   
       const routesEvent = await routesEventService.getRoutesEventById(routeID);
       if (!routesEvent) {
-        return res.status(404).json({ message: 'Routes event not found' });
+        return res.status(404).json({ message: errorMessages.ROUTES_EVENT_NOT_FOUND });
       }
   
       await routesEventService.deleteRoutesEvent(routeID);
@@ -130,7 +153,7 @@ const routesEventController = {
   
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error deleting routes event' });
+      res.status(500).json({ message: errorMessages.ERROR_DELETING_ROUTES_EVENT });
     }
   }
 };

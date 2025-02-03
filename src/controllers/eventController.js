@@ -7,6 +7,14 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import https from 'https';
 
+const loadErrorMessages = (lang) => {
+  const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
+  const errorMessages = JSON.parse(fs.readFileSync(errorMessagesPath, 'utf-8'));
+  const languageCode = lang.split(',')[0].split('-')[0];
+
+  return errorMessages[languageCode] || errorMessages.en;
+};
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -20,18 +28,20 @@ const eventController = {
    * If no events are found, it returns a 404 response.
    */
   async getAllEvents(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const events = await eventService.getAllEvents();
 
       if (events == null || events.length === 0) {
-        return res.status(404).json({ message: 'No events found' });
+        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
       }
 
       res.status(200).json(events);
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching events' });
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
     }
   },
 
@@ -43,18 +53,20 @@ const eventController = {
    * If no suspended events are found, it returns a 404 response.
    */
   async getSuspendedEvents(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const suspendedEvents = await eventService.getSuspendedEvents();
 
       if (suspendedEvents == null || suspendedEvents.length === 0) {
-        return res.status(404).json({ message: 'No suspended events found' });
+        return res.status(404).json({ message: errorMessages.NO_SUSPENDED_EVENTS_FOUND });
       }
 
       res.status(200).json(suspendedEvents);
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching events' });
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
     }
   },
 
@@ -66,18 +78,20 @@ const eventController = {
   * If no approved events are found, it returns a 404 response.
   */
   async getApprovedEvents(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const approvedEvents = await eventService.getApprovedEvents();
 
       if (approvedEvents == null || approvedEvents.length === 0) {
-        return res.status(404).json({ message: 'No approved events found' });
+        return res.status(404).json({ message: errorMessages.NO_APPROVED_EVENTS_FOUND });
       }
 
       res.status(200).json(approvedEvents);
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching events' });
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
     }
   },
 
@@ -90,20 +104,22 @@ const eventController = {
    * If no events are found, it returns a 404 response.
    */
   async getUserEvents(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const userId = req.user.userID;
 
       const events = await eventService.getUserEvents(userId);
 
       if (events == null || events.length === 0) {
-        return res.status(404).json({ message: 'No events found' });
+        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
       }
 
       res.status(200).json(events);
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching events' });
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
     }
   },
 
@@ -116,19 +132,21 @@ const eventController = {
    * If no event is found, it returns a 404 response.
    */
   async getEventById(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
       const event = await eventService.getEventById(eventId);
 
       if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
+        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
       }
 
       res.status(200).json(event);
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching event' });
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
     }
   },
 
@@ -143,6 +161,8 @@ const eventController = {
    * If the event is successfully created, it returns a 201 response.
    */
   async createEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const authToken = req.headers['authorization']
       const { name, description, startAt, endAt, price } = req.body;
@@ -151,7 +171,7 @@ const eventController = {
       const numericPrice = parseFloat(price);
 
       if (!name || !description || !startAt || !endAt || !numericPrice) {
-        return res.status(400).json({ message: 'Missing required fields' });
+        return res.status(400).json({ message: errorMessages.MISSING_REQUIRED_FIELDS });
       }
 
       // Configuração para ignorar certificados autoassinados (apenas para desenvolvimento)
@@ -163,7 +183,7 @@ const eventController = {
       const userExists = await axios.get(`https://nginx-api-gateway:5010/user/api/users/${userId}`, { httpsAgent: agent });  //https api gateway
 
       if (!userExists) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: errorMessages.USER_NOT_FOUND });
       }
 
       let eventPicturePath = userExists.eventPicturePath;
@@ -174,7 +194,7 @@ const eventController = {
         const allowedExtensions = /png|jpeg|jpg|webp/;
         const fileExtension = path.extname(eventPicture.name).toLowerCase();
         if (!allowedExtensions.test(fileExtension)) {
-          return res.status(400).json({ message: "Invalid file type. Only PNG, JPEG, and JPG are allowed." });
+          return res.status(400).json({ message: errorMessages.INVALID_FILE_TYPE });
         }
 
         if (eventPicturePath && fs.existsSync(path.join(__dirname, '../public', eventPicturePath))) {
@@ -247,7 +267,7 @@ const eventController = {
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error creating event' });
+      res.status(500).json({ message: errorMessages.ERROR_CREATING_EVENT });
     }
   },
 
@@ -261,6 +281,8 @@ const eventController = {
    * Returns a 404 if the event is not found, or a 200 with the updated event data if successful.
    */
   async updateEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
       const { name, description, startAt, endAt, price } = req.body;
@@ -269,7 +291,7 @@ const eventController = {
 
       const event = await eventService.getEventById(eventId);
       if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
+        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
       }
 
       let eventPicturePath = event.eventPicturePath;
@@ -280,7 +302,7 @@ const eventController = {
         const allowedExtensions = /png|jpeg|jpg|webp/;
         const fileExtension = path.extname(eventPicture.name).toLowerCase();
         if (!allowedExtensions.test(fileExtension)) {
-          return res.status(400).json({ message: "Invalid file type. Only PNG, JPEG, and JPG are allowed." });
+          return res.status(400).json({ message: errorMessages.INVALID_FILE_TYPE });
         }
 
         if (eventPicturePath && fs.existsSync(path.join(__dirname, '../public', eventPicturePath))) {
@@ -308,7 +330,7 @@ const eventController = {
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error updating event' });
+      res.status(500).json({ message: errorMessages.ERROR_UPDATING_EVENT });
     }
   },
 
@@ -320,6 +342,8 @@ const eventController = {
    * @description This route allows updating the status of an event to "approved". The event status is initially "pending", and only events with the "pending" status can be approved.
    */
   async updateEventStatus(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
 
@@ -327,12 +351,12 @@ const eventController = {
       const eventStatusApproved = await eventStatusService.getEventStatusByStatus('Aprovado');
 
       if (!eventStatusPending || !eventStatusApproved) {
-        return res.status(404).json({ message: 'Event status not found' });
+        return res.status(404).json({ message: errorMessages.EVENT_STATUS_NOT_FOUND });
       }
 
       const event = await eventService.getEventById(eventId);
       if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
+        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
       }
 
       if (event.eventstatus_id === eventStatusPending.eventStatusID) {
@@ -340,11 +364,11 @@ const eventController = {
         return res.status(200).json(updatedEvent);
       }
 
-      return res.status(400).json({ message: 'Event status is not pending' });
+      return res.status(400).json({ message: errorMessages.EVENT_STATUS_NOT_PENDING });
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error updating event status' });
+      res.status(500).json({ message: errorMessages.ERROR_UPDATING_EVENT_STATUS });
     }
   },
 
@@ -356,6 +380,8 @@ const eventController = {
    * @description This route allows updating the status of an event to "Cancelado". When an event is cancelled, any associated payments for tickets will also be updated to "Cancelado".
    */
   async cancelEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
 
@@ -363,7 +389,7 @@ const eventController = {
 
       const event = await eventService.getEventById(eventId);
       if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
+        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
       }
 
       // Configuração para ignorar certificados autoassinados (apenas para desenvolvimento)
@@ -397,7 +423,7 @@ const eventController = {
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error updating event status' });
+      res.status(500).json({ message: errorMessages.ERROR_UPDATING_EVENT_STATUS });
     }
   },
 
@@ -410,12 +436,14 @@ const eventController = {
    * If the event is not found, it returns a 404 response.
    */
   async deleteEvent(req, res) {
+    const lang = req.headers['accept-language'] || 'en'; 
+    const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
 
       const event = await eventService.getEventById(eventId);
       if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
+        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
       }
 
       await eventService.deleteEvent(eventId);
@@ -423,7 +451,7 @@ const eventController = {
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error deleting event' });
+      res.status(500).json({ message: errorMessages.ERROR_DELETING_EVENT });
     }
   }
 };
