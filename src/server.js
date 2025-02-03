@@ -26,15 +26,15 @@ app.get('/', (req, res) => {
   res.json('hello there');
 });
 
-//app.listen(PORT, () => {
-//  console.log(`listening on port ${PORT}`);
-//});
+app.listen(PORT, () => {
+  console.log(`listening on port ${PORT}`);
+});
 
 // Criar servidor HTTPS
-https.createServer({ 
-  key, 
-  cert, 
-  passphrase: 'benfica' // passphrase
-}, app).listen(PORT, () => {
-  console.log(`HTTPS server listening on port ${PORT}`);
-});
+//https.createServer({ 
+//  key, 
+//  cert, 
+//  passphrase: 'benfica' // passphrase
+//}, app).listen(PORT, () => {
+//  console.log(`HTTPS server listening on port ${PORT}`);
+//});
