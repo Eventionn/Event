@@ -6,6 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import https from 'https';
+import addressEventService from '../services/addressEventService.js';
 
 const loadErrorMessages = (lang) => {
   const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
@@ -446,7 +447,7 @@ const eventController = {
         return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
       }
 
-      const addressEvent = await eventService.getAddressEventByEventId(eventId);
+      const addressEvent = await addressEventService.getAddressEventByEventId(eventId);
 
       if (!addressEvent) {
         return res.status(404).json({ message: errorMessages.NO_ADDRESS_EVENT_FOUND });
