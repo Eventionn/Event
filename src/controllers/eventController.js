@@ -28,7 +28,7 @@ const eventController = {
    * If no events are found, it returns a 404 response.
    */
   async getAllEvents(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const events = await eventService.getAllEvents();
@@ -53,7 +53,7 @@ const eventController = {
    * If no suspended events are found, it returns a 404 response.
    */
   async getSuspendedEvents(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const suspendedEvents = await eventService.getSuspendedEvents();
@@ -78,7 +78,7 @@ const eventController = {
   * If no approved events are found, it returns a 404 response.
   */
   async getApprovedEvents(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const approvedEvents = await eventService.getApprovedEvents();
@@ -104,7 +104,7 @@ const eventController = {
    * If no events are found, it returns a 404 response.
    */
   async getUserEvents(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const userId = req.user.userID;
@@ -132,7 +132,7 @@ const eventController = {
    * If no event is found, it returns a 404 response.
    */
   async getEventById(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -161,7 +161,7 @@ const eventController = {
    * If the event is successfully created, it returns a 201 response.
    */
   async createEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const authToken = req.headers['authorization']
@@ -175,7 +175,7 @@ const eventController = {
       }
 
       // Configuração para ignorar certificados autoassinados (apenas para desenvolvimento)
-      const agent = new https.Agent({ rejectUnauthorized: false });    
+      const agent = new https.Agent({ rejectUnauthorized: false });
 
       //const userExists = await axios.get(`http://nginx-api-gateway:5010/user/api/users/${userId}`);
       //const userExists = await axios.get(`http://localhost:5001/api/users/${userId}`);
@@ -240,13 +240,13 @@ const eventController = {
       };
 
       if (user && user.data.usertype_id === '2c6aab42-7274-424e-8c10-e95441cb95c3') {
-      //   await axios.put(`http://localhost:5001/api/users/${userId}`, updatedUser, { httpsAgent: agent },
-      //     {
-      //       headers: {
-      //         Authorization: authToken
-      //       }
-      //     }
-      //   );
+        //   await axios.put(`http://localhost:5001/api/users/${userId}`, updatedUser, { httpsAgent: agent },
+        //     {
+        //       headers: {
+        //         Authorization: authToken
+        //       }
+        //     }
+        //   );
         await axios.put(`https://nginx-api-gateway:5010/user/api/users/${userId}`, updatedUser, { httpsAgent: agent }, //https api gateway
           {
             headers: {
@@ -261,7 +261,7 @@ const eventController = {
         //     }
         //   }
         // );
-       }
+      }
 
       res.status(201).json(newEvent);
 
@@ -281,7 +281,7 @@ const eventController = {
    * Returns a 404 if the event is not found, or a 200 with the updated event data if successful.
    */
   async updateEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -342,7 +342,7 @@ const eventController = {
    * @description This route allows updating the status of an event to "approved". The event status is initially "pending", and only events with the "pending" status can be approved.
    */
   async updateEventStatus(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -380,7 +380,7 @@ const eventController = {
    * @description This route allows updating the status of an event to "Cancelado". When an event is cancelled, any associated payments for tickets will also be updated to "Cancelado".
    */
   async cancelEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -436,7 +436,7 @@ const eventController = {
    * If the event is not found, it returns a 404 response.
    */
   async deleteEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -446,6 +446,13 @@ const eventController = {
         return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
       }
 
+      const addressEvent = await eventService.getAddressEventByEventId(eventId);
+
+      if (!addressEvent) {
+        return res.status(404).json({ message: errorMessages.NO_ADDRESS_EVENT_FOUND });
+      }
+
+      await eventService.deleteAddressEvent(addressEvent.addressEstablishmentID);
       await eventService.deleteEvent(eventId);
       res.status(204).send();
 
