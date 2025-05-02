@@ -7,6 +7,7 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import https from 'https';
 import addressEventService from '../services/addressEventService.js';
+import routesEventService from '../services/routesEventService.js';
 
 const loadErrorMessages = (lang) => {
   const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
@@ -448,12 +449,18 @@ const eventController = {
       }
 
       const addressEvent = await addressEventService.getAddressEventByEventId(eventId);
-
-      if (!addressEvent) {
-        return res.status(404).json({ message: errorMessages.NO_ADDRESS_EVENT_FOUND });
+      const addresRoutes = await routesEventService.getRoutesEventByAddressId(addressEvent.addressEstablishmentID);
+  
+      if (addresRoutes) {
+        for (const route of addresRoutes) {
+          await routesEventService.deleteRoutesEvent(route.routeID);
+        }
       }
 
-      await addressEventService.deleteAddressEvent(addressEvent.addressEstablishmentID);
+      if (addressEvent) {
+        await addressEventService.deleteAddressEvent(addressEvent.addressEstablishmentID);
+      }
+
       await eventService.deleteEvent(eventId);
       res.status(204).send();
 
