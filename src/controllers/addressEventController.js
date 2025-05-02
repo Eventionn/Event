@@ -1,5 +1,6 @@
 import addressEventService from '../services/addressEventService.js';
 import axios from 'axios';
+import routesEventService from '../services/routesEventService.js';
 
 const loadErrorMessages = (lang) => {
   const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
@@ -155,7 +156,16 @@ const addressEventController = {
       if (!addressEvent) {
         return res.status(404).json({ message: errorMessages.ADDRESS_EVENT_NOT_FOUND });
       }
+
+      const addresRoutes = await routesEventService.getRoutesEventByAddressId(addressEventId);
+
+      if (!addresRoutes) {
+        return res.status(404).json({ message: errorMessages.NO_ADDRESS_EVENT_FOUND });
+      }
   
+      for (const route of addresRoutes) {
+        await routesEventService.deleteRoutesEvent(route.routeID);
+      }
       await addressEventService.deleteAddressEvent(addressEventId);
       res.status(204).send(); 
   

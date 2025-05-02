@@ -22,6 +22,17 @@ const routesEventService = {
     });
   },
 
+    /**
+   * Get a specific routes event by addressEventID
+   * @param {string} addressEventID - The ID of the address event to fetch
+   * @returns {Promise<Object[]|null>} The routes event object or null if not found
+   */
+    async getRoutesEventByAddressId(addressEventID) {
+      return prisma.routesEvent.findMany({
+        where: { addressEvent_id: addressEventID },
+      });
+    },
+
   /**
    * Create a new routes event
    * @param {Object} routesEventData - The data for creating the routes event
