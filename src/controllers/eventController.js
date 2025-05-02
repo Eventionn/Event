@@ -449,9 +449,13 @@ const eventController = {
       }
 
       const addressEvent = await addressEventService.getAddressEventByEventId(eventId);
-      const addresRoutes = await routesEventService.getRoutesEventByAddressId(addressEvent.addressEstablishmentID);
+      let addresRoutes = null;
+
+      if(addressEvent){
+        addresRoutes = await routesEventService.getRoutesEventByAddressId(addressEvent.addressEstablishmentID);
+      }
   
-      if (addresRoutes) {
+      if (addresRoutes != null) {
         for (const route of addresRoutes) {
           await routesEventService.deleteRoutesEvent(route.routeID);
         }
