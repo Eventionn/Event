@@ -35,10 +35,6 @@ const eventController = {
     try {
       const events = await eventService.getAllEvents();
 
-      if (events == null || events.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
-      }
-
       res.status(200).json(events);
 
     } catch (error) {
@@ -60,10 +56,6 @@ const eventController = {
     try {
       const suspendedEvents = await eventService.getSuspendedEvents();
 
-      if (suspendedEvents == null || suspendedEvents.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_SUSPENDED_EVENTS_FOUND });
-      }
-
       res.status(200).json(suspendedEvents);
 
     } catch (error) {
@@ -84,10 +76,6 @@ const eventController = {
     const errorMessages = loadErrorMessages(lang);
     try {
       const approvedEvents = await eventService.getApprovedEvents();
-
-      if (approvedEvents == null || approvedEvents.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_APPROVED_EVENTS_FOUND });
-      }
 
       res.status(200).json(approvedEvents);
 
@@ -112,10 +100,6 @@ const eventController = {
       const userId = req.user.userID;
 
       const events = await eventService.getUserEvents(userId);
-
-      if (events == null || events.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
-      }
 
       res.status(200).json(events);
 
