@@ -28,9 +28,9 @@ const addressEventService = {
  * @returns {Promise<Object|null>} The address event object or null if not found
  */
   async getAddressEventByEventId(eventId) {
-    return prisma.addressEvent.findUnique({
+    return prisma.addressEvent.findFirst({
       where: { event_id: eventId },
-    });
+    });    
   },
 
   /**
