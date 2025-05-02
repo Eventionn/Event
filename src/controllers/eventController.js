@@ -453,7 +453,7 @@ const eventController = {
         return res.status(404).json({ message: errorMessages.NO_ADDRESS_EVENT_FOUND });
       }
 
-      await eventService.deleteAddressEvent(addressEvent.addressEstablishmentID);
+      await addressEventService.deleteAddressEvent(addressEvent.addressEstablishmentID);
       await eventService.deleteEvent(eventId);
       res.status(204).send();
 
