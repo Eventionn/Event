@@ -207,14 +207,6 @@ const eventController = {
         eventPicture: eventPicturePath
       });
 
-      const token = 'dF2k8hQLb9T:APA91bH7-5RryA3w-XgHrC8_yLqVjvYZ76k7B9oQqEXAMPLE';
-      const notificationData = {
-        title: 'Evento Criado!',
-        body: `O evento "${name}" foi criado com sucesso. Aguarde pela aprovação.`,
-      };
-
-      //await eventService.sendNotification(notificationData, token);
-
       //const user = await axios.get(`http://localhost:5001/api/users/${userId}`);
       // const user = await axios.get(`http://userservice:5001/api/users/${userId}`);
       //const user = await axios.get(`http://nginx-api-gateway:5010/user/api/users/${userId}`);

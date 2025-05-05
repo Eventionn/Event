@@ -75,32 +75,6 @@ const eventService = {
   },
 
   /**
-     * Send a notification to a specific device using Firebase Cloud Messaging
-     * @param {Object} notificationData - The notification data containing title and body
-     * @param {string} registrationToken - The FCM registration token of the target device
-     * @returns {Promise<Object>} The response from Firebase Cloud Messaging
-     */
-  async sendNotification(notificationData, registrationToken) {
-    try {
-      const message = {
-        data: {
-          title: notificationData.title,
-          body: notificationData.body,
-        },
-        token: registrationToken,
-      };
-
-      const response = await admin.messaging().send(message);
-      console.log('Notification sent:', response);
-
-      return response;
-    } catch (error) {
-      console.error('Error sending notification:', error);
-      throw new Error('Error sending notification.');
-    }
-  },
-
-  /**
  * Get all events
  * @returns {Promise<Array>} List of user events
  */
