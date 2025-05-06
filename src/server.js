@@ -11,6 +11,9 @@ const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 // Ler certificados SSL/TLS
 const key = fs.readFileSync(path.resolve('/usr/src/app/key.pem'));
 const cert = fs.readFileSync(path.resolve('/usr/src/app/cert.pem'));
@@ -20,6 +23,8 @@ app.use(cors({
   credentials: true
 }));
 app.options('*', cors());
+
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.use(express.json());
 app.use('/api', routes);
