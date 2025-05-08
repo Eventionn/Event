@@ -225,13 +225,17 @@ const eventController = {
         //       }
         //     }
         //   );
-        await axios.put(`https://nginx-api-gateway:5010/user/api/users/${userId}`, updatedUser, { httpsAgent: agent }, //https api gateway
+        await axios.put(
+          `https://nginx-api-gateway:5010/user/api/users/${userId}`,
+          updatedUser,
           {
+            httpsAgent: agent,
             headers: {
-              Authorization: authToken
-            }
+              Authorization: authToken,
+            },
           }
         );
+
         // await axios.put(`http://userservice:5001/api/users/${userId}`, updatedUser,
         //   {
         //     headers: {
@@ -427,10 +431,10 @@ const eventController = {
       const addressEvent = await addressEventService.getAddressEventByEventId(eventId);
       let addresRoutes = null;
 
-      if(addressEvent){
+      if (addressEvent) {
         addresRoutes = await routesEventService.getRoutesEventByAddressId(addressEvent.addressEstablishmentID);
       }
-  
+
       if (addresRoutes != null) {
         for (const route of addresRoutes) {
           await routesEventService.deleteRoutesEvent(route.routeID);
