@@ -19,19 +19,19 @@ spec:
         - containerPort: 5002
         env:
           - name: DB_HOST
-            value: "eventservice-db-service"  
+            value: "eventservice-db-service"
           - name: DB_PORT
-            value: "5432"                  
+            value: "5432"
           - name: DB_USER
-            value: "eventservice_user"      
+            value: "eventservice_user"
           - name: DB_PASSWORD
-            value: "eventservice_pass"      
+            value: "eventservice_pass"
           - name: DB_NAME
-            value: "eventservice_db" 
-    volumeMounts:
-      - name: event-picture-storage
-        mountPath: /usr/src/app/public/uploads/event_pictures
-  volumes:
-    - name: event-picture-storage
-      persistentVolumeClaim:
-        claimName: eventservice-images-pvc
+            value: "eventservice_db"
+        volumeMounts:
+          - name: event-picture-storage
+            mountPath: /usr/src/app/public/uploads/event_pictures
+      volumes:
+        - name: event-picture-storage
+          persistentVolumeClaim:
+            claimName: eventservice-images-pvc
