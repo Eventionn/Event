@@ -6,6 +6,8 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import https from 'https';
+import addressEventService from '../services/addressEventService.js';
+import routesEventService from '../services/routesEventService.js';
 
 const loadErrorMessages = (lang) => {
   const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
@@ -28,14 +30,10 @@ const eventController = {
    * If no events are found, it returns a 404 response.
    */
   async getAllEvents(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const events = await eventService.getAllEvents();
-
-      if (events == null || events.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
-      }
 
       res.status(200).json(events);
 
@@ -53,14 +51,10 @@ const eventController = {
    * If no suspended events are found, it returns a 404 response.
    */
   async getSuspendedEvents(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const suspendedEvents = await eventService.getSuspendedEvents();
-
-      if (suspendedEvents == null || suspendedEvents.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_SUSPENDED_EVENTS_FOUND });
-      }
 
       res.status(200).json(suspendedEvents);
 
@@ -78,14 +72,10 @@ const eventController = {
   * If no approved events are found, it returns a 404 response.
   */
   async getApprovedEvents(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const approvedEvents = await eventService.getApprovedEvents();
-
-      if (approvedEvents == null || approvedEvents.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_APPROVED_EVENTS_FOUND });
-      }
 
       res.status(200).json(approvedEvents);
 
@@ -104,16 +94,12 @@ const eventController = {
    * If no events are found, it returns a 404 response.
    */
   async getUserEvents(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const userId = req.user.userID;
 
       const events = await eventService.getUserEvents(userId);
-
-      if (events == null || events.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
-      }
 
       res.status(200).json(events);
 
@@ -132,7 +118,7 @@ const eventController = {
    * If no event is found, it returns a 404 response.
    */
   async getEventById(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -161,7 +147,7 @@ const eventController = {
    * If the event is successfully created, it returns a 201 response.
    */
   async createEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const authToken = req.headers['authorization']
@@ -175,7 +161,7 @@ const eventController = {
       }
 
       // Configuração para ignorar certificados autoassinados (apenas para desenvolvimento)
-      const agent = new https.Agent({ rejectUnauthorized: false });    
+      const agent = new https.Agent({ rejectUnauthorized: false });
 
       //const userExists = await axios.get(`http://nginx-api-gateway:5010/user/api/users/${userId}`);
       //const userExists = await axios.get(`http://localhost:5001/api/users/${userId}`);
@@ -221,14 +207,6 @@ const eventController = {
         eventPicture: eventPicturePath
       });
 
-      const token = 'dF2k8hQLb9T:APA91bH7-5RryA3w-XgHrC8_yLqVjvYZ76k7B9oQqEXAMPLE';
-      const notificationData = {
-        title: 'Evento Criado!',
-        body: `O evento "${name}" foi criado com sucesso. Aguarde pela aprovação.`,
-      };
-
-      //await eventService.sendNotification(notificationData, token);
-
       //const user = await axios.get(`http://localhost:5001/api/users/${userId}`);
       // const user = await axios.get(`http://userservice:5001/api/users/${userId}`);
       //const user = await axios.get(`http://nginx-api-gateway:5010/user/api/users/${userId}`);
@@ -240,20 +218,24 @@ const eventController = {
       };
 
       if (user && user.data.usertype_id === '2c6aab42-7274-424e-8c10-e95441cb95c3') {
-      //   await axios.put(`http://localhost:5001/api/users/${userId}`, updatedUser, { httpsAgent: agent },
-      //     {
-      //       headers: {
-      //         Authorization: authToken
-      //       }
-      //     }
-      //   );
-        await axios.put(`https://nginx-api-gateway:5010/user/api/users/${userId}`, updatedUser, { httpsAgent: agent }, //https api gateway
+        //   await axios.put(`http://localhost:5001/api/users/${userId}`, updatedUser, { httpsAgent: agent },
+        //     {
+        //       headers: {
+        //         Authorization: authToken
+        //       }
+        //     }
+        //   );
+        await axios.put(
+          `https://nginx-api-gateway:5010/user/api/users/${userId}`,
+          updatedUser,
           {
+            httpsAgent: agent,
             headers: {
-              Authorization: authToken
-            }
+              Authorization: authToken,
+            },
           }
         );
+
         // await axios.put(`http://userservice:5001/api/users/${userId}`, updatedUser,
         //   {
         //     headers: {
@@ -261,7 +243,7 @@ const eventController = {
         //     }
         //   }
         // );
-       }
+      }
 
       res.status(201).json(newEvent);
 
@@ -281,7 +263,7 @@ const eventController = {
    * Returns a 404 if the event is not found, or a 200 with the updated event data if successful.
    */
   async updateEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -342,7 +324,7 @@ const eventController = {
    * @description This route allows updating the status of an event to "approved". The event status is initially "pending", and only events with the "pending" status can be approved.
    */
   async updateEventStatus(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -380,7 +362,7 @@ const eventController = {
    * @description This route allows updating the status of an event to "Cancelado". When an event is cancelled, any associated payments for tickets will also be updated to "Cancelado".
    */
   async cancelEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -436,7 +418,7 @@ const eventController = {
    * If the event is not found, it returns a 404 response.
    */
   async deleteEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const eventId = req.params.id;
@@ -444,6 +426,23 @@ const eventController = {
       const event = await eventService.getEventById(eventId);
       if (!event) {
         return res.status(404).json({ message: errorMessages.NO_EVENTS_FOUND });
+      }
+
+      const addressEvent = await addressEventService.getAddressEventByEventId(eventId);
+      let addresRoutes = null;
+
+      if (addressEvent) {
+        addresRoutes = await routesEventService.getRoutesEventByAddressId(addressEvent.addressEstablishmentID);
+      }
+
+      if (addresRoutes != null) {
+        for (const route of addresRoutes) {
+          await routesEventService.deleteRoutesEvent(route.routeID);
+        }
+      }
+
+      if (addressEvent) {
+        await addressEventService.deleteAddressEvent(addressEvent.addressEstablishmentID);
       }
 
       await eventService.deleteEvent(eventId);

@@ -1,5 +1,6 @@
 import addressEventService from '../services/addressEventService.js';
 import axios from 'axios';
+import routesEventService from '../services/routesEventService.js';
 
 const loadErrorMessages = (lang) => {
   const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
@@ -11,15 +12,15 @@ const loadErrorMessages = (lang) => {
 
 const addressEventController = {
 
-/**
-   * Get all address events
-   * @route {GET} /address-events
-   * @returns {Array} List of address events
-   * @description Fetches all address events from the database.
-   * If no address events are found, it returns a 404 response.
-   */
+  /**
+     * Get all address events
+     * @route {GET} /address-events
+     * @returns {Array} List of address events
+     * @description Fetches all address events from the database.
+     * If no address events are found, it returns a 404 response.
+     */
   async getAllAddressEvents(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const addressEvents = await addressEventService.getAllAddressEvents();
@@ -45,7 +46,7 @@ const addressEventController = {
    * If the address event is not found, it returns a 404 response.
    */
   async getAddressEventById(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const addressEventId = req.params.id;
@@ -78,17 +79,17 @@ const addressEventController = {
    * Additionally, it checks if the provided `localtown` exists through an external service.
    */
   async createAddressEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const { road, roadNumber, postCode, localtown, event_id } = req.body;
-      
+
       if (!road || !roadNumber || !postCode || !localtown || !event_id) {
         return res.status(400).json({ message: errorMessages.MISSING_REQUIRED_FIELDS });
       }
 
       // Configuração para ignorar certificados autoassinados (apenas para desenvolvimento)
-      const agent = new https.Agent({ rejectUnauthorized: false });    
+      const agent = new https.Agent({ rejectUnauthorized: false });
 
       // const localtownExists = await axios.get(`http://locationservice:5005/api/location/${localtown}`);
       //const localtownExists = await axios.get(`http://nginx-api-gateway:5010/location/api/location/${localtown}`);
@@ -117,7 +118,7 @@ const addressEventController = {
    * If the address event is not found, it returns a 404 response.
    */
   async updateAddressEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const addressEventId = req.params.id;
@@ -146,19 +147,27 @@ const addressEventController = {
    * If the address event is not found, it returns a 404 response.
    */
   async deleteAddressEvent(req, res) {
-    const lang = req.headers['accept-language'] || 'en'; 
+    const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
     try {
       const addressEventId = req.params.id;
-  
+
       const addressEvent = await addressEventService.getAddressEventById(addressEventId);
       if (!addressEvent) {
         return res.status(404).json({ message: errorMessages.ADDRESS_EVENT_NOT_FOUND });
       }
-  
+
+      const addresRoutes = await routesEventService.getRoutesEventByAddressId(addressEventId);
+
+      if (addresRoutes) {
+        for (const route of addresRoutes) {
+          await routesEventService.deleteRoutesEvent(route.routeID);
+        }
+      }
+
       await addressEventService.deleteAddressEvent(addressEventId);
-      res.status(204).send(); 
-  
+      res.status(204).send();
+
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: errorMessages.ERROR_DELETING_ADDRESS_EVENT });

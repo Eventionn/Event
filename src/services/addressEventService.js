@@ -23,6 +23,17 @@ const addressEventService = {
   },
 
   /**
+ * Get a specific address event by eventID
+ * @param {string} eventId - The ID of the address event to fetch
+ * @returns {Promise<Object|null>} The address event object or null if not found
+ */
+  async getAddressEventByEventId(eventId) {
+    return prisma.addressEvent.findFirst({
+      where: { event_id: eventId },
+    });    
+  },
+
+  /**
    * Create a new address event
    * @param {Object} addressEventData - The data for creating the address event
    * @returns {Promise<Object>} The created address event object
