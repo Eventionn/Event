@@ -131,7 +131,7 @@ const eventController = {
 
       if (eventCount > 0) {
         const ticketArrays = await Promise.all(
-          events.map(event => axios.get(`https://nginx-api-gateway:5010/userinevent/api/tickes/event/${event.eventID}`))
+          events.map(event => axios.get(`https://nginx-api-gateway:5010/userinevent/api/tickets/event/${event.eventID}`))
         );
         tickets = ticketArrays.flat();
       }
