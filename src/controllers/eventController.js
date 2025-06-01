@@ -127,17 +127,22 @@ const eventController = {
       const events = await eventService.getUserEvents(userId);
       const eventCount = events.length;
       const agent = new https.Agent({ rejectUnauthorized: false });
-      
+
       let tickets = [];
 
       console.log("events: ", events)
 
       if (eventCount > 0) {
         const ticketArrays = await Promise.all(
-          events.map(event => axios.get(`https://nginx-api-gateway:5010/userinevent/api/tickets/event/${event.eventID}`, { httpsAgent: agent }))
+          events.map(event =>
+            axios
+              .get(`https://nginx-api-gateway:5010/userinevent/api/tickets/event/${event.eventID}`, { httpsAgent: agent })
+              .then(res => res.data)
+          )
         );
         tickets = ticketArrays.flat();
       }
+
 
       console.log("tickets: ", tickets)
 
