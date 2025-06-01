@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
 import https from 'https';
 import addressEventService from '../services/addressEventService.js';
 import routesEventService from '../services/routesEventService.js';
-import userInEventService from '../../../UserInEvent/src/services/userInEventService.js';
 
 const loadErrorMessages = (lang) => {
   const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
