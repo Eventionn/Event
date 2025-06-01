@@ -130,8 +130,6 @@ const eventController = {
 
       let tickets = [];
 
-      console.log("events: ", events)
-
       if (eventCount > 0) {
         const ticketArrays = await Promise.all(
           events.map(event =>
@@ -142,9 +140,6 @@ const eventController = {
         );
         tickets = ticketArrays.flat();
       }
-
-
-      console.log("tickets: ", tickets)
 
       const feedbackTickets = tickets.filter(t => t.feedback && t.feedback.rating != null);
       const feedbackCount = feedbackTickets.length;
