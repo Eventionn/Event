@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import https from 'https';
 import addressEventService from '../services/addressEventService.js';
 import routesEventService from '../services/routesEventService.js';
+import userInEventService from '../../../UserInEvent/src/services/userInEventService.js';
 
 const loadErrorMessages = (lang) => {
   const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
@@ -102,6 +103,52 @@ const eventController = {
       const events = await eventService.getUserEvents(userId);
 
       res.status(200).json(events);
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
+    }
+  },
+
+  /**
+   * Get user events
+   * @route {GET} /events/reputation
+   * @param {string} id - The ID of the user
+   * @returns {Array} List of events associated with the user
+   * @description Fetches user reputarion associated with the current user based on their ID.
+   * If no events are found, it returns a 404 response.
+   */
+  async getUserReputation(req, res) {
+    const lang = req.headers['accept-language'] || 'en';
+    const errorMessages = loadErrorMessages(lang);
+
+    try {
+      const userId = req.user.userID;
+
+      const events = await eventService.getUserEvents(userId);
+      const eventCount = events.length;
+
+      let tickets = [];
+
+      if (eventCount > 0) {
+        const ticketArrays = await Promise.all(
+          events.map(event => userInEventService.getTicketsByEvent(event.eventID))
+        );
+        tickets = ticketArrays.flat();
+      }
+
+      const feedbackTickets = tickets.filter(t => t.feedback && t.feedback.rating != null);
+      const feedbackCount = feedbackTickets.length;
+
+      const totalRating = feedbackTickets.reduce((sum, t) => sum + t.feedback.rating, 0);
+
+      const reputation = feedbackCount > 0 ? totalRating / feedbackCount : 0;
+
+      res.status(200).json({
+        eventCount,
+        reputation: parseFloat(reputation.toFixed(2)),
+        tickets
+      });
 
     } catch (error) {
       console.error(error);
