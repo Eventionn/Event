@@ -13,7 +13,7 @@ router.use(fileUpload());
 
 router.get('/events', eventController.getAllEvents);
 router.post('/events', verifyToken, eventController.createEvent);
-router.get('/events/reputation', verifyToken, eventController.getUserReputation);
+router.get('/events/reputation/:id', verifyToken, eventController.getUserReputation);
 router.get('/events/approved', eventController.getApprovedEvents);
 router.get('/events/suspended', verifyToken, verifyAdmin, eventController.getSuspendedEvents);
 router.get('/events/my', verifyToken, verifyAdvertiser, eventController.getUserEvents);

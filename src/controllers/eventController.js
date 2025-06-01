@@ -111,7 +111,7 @@ const eventController = {
 
   /**
    * Get user events
-   * @route {GET} /events/reputation
+   * @route {GET} /events/reputation/:id
    * @param {string} id - The ID of the user
    * @returns {Array} List of events associated with the user
    * @description Fetches user reputarion associated with the current user based on their ID.
