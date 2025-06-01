@@ -122,7 +122,7 @@ const eventController = {
     const errorMessages = loadErrorMessages(lang);
 
     try {
-      const userId = req.user.userID;
+      const userId = req.params.id;
 
       const events = await eventService.getUserEvents(userId);
       const eventCount = events.length;
