@@ -53,19 +53,19 @@ const eventController = {
     const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
 
+    const status = req.query.status || null;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || null;
 
     try {
-      const result = await eventService.getEventsPaginated(page, limit, search);
+      const result = await eventService.getEventsPaginated(status, page, limit, search);
       res.status(200).json(result);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
     }
   },
-
 
   /**
    * Get suspended events
