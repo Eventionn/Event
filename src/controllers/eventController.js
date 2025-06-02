@@ -43,6 +43,30 @@ const eventController = {
     }
   },
 
+    /**
+   * Get all events by page
+   * @route {GET} /eventsPaginated
+   * @returns {Array} List of events
+   * @description Fetches events from the database.
+   */
+  async getEventsPaginated(req, res) {
+    const lang = req.headers['accept-language'] || 'en';
+    const errorMessages = loadErrorMessages(lang);
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || null;
+
+    try {
+      const result = await eventService.getEventsPaginated(page, limit, search);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
+    }
+  },
+
+
   /**
    * Get suspended events
    * @route {GET} /events/suspended
