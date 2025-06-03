@@ -247,7 +247,7 @@ const eventController = {
         return res.status(404).json({ message: errorMessages.USER_NOT_FOUND });
       }
 
-      let eventPicturePath = userExists.eventPicturePath;
+      let eventPicturePath;
 
       if (req.files && req.files.eventPicture) {
         const eventPicture = req.files.eventPicture;
@@ -258,15 +258,17 @@ const eventController = {
           return res.status(400).json({ message: errorMessages.INVALID_FILE_TYPE });
         }
 
-        if (eventPicturePath && fs.existsSync(path.join(__dirname, '../public', eventPicturePath))) {
-          fs.unlinkSync(path.join(__dirname, '../public', eventPicturePath));
+        const basePath = '/usr/src/app/public/uploads/event_pictures';
+
+        if (!fs.existsSync(basePath)) {
+          fs.mkdirSync(basePath, { recursive: true });
         }
 
         const uniqueName = `${uuidv4()}${fileExtension}`;
-        const uploadPath = path.join(__dirname, '../public/uploads/event_pictures', uniqueName);
+        const uploadPath = path.join(basePath, uniqueName);
         await eventPicture.mv(uploadPath);
 
-        eventPicturePath = `/uploads/event_pictures/${path.basename(uploadPath)}`;
+        eventPicturePath = `/uploads/event_pictures/${uniqueName}`;
       }
 
       const eventStatusPending = await eventStatusService.getEventStatusByStatus('Pendente');
@@ -364,7 +366,6 @@ const eventController = {
 
         const basePath = '/usr/src/app/public/uploads/event_pictures';
 
-        // Apagar imagem antiga, se existir
         if (eventPicturePath) {
           const oldPath = path.join(basePath, path.basename(eventPicturePath));
           if (fs.existsSync(oldPath)) {
@@ -372,17 +373,14 @@ const eventController = {
           }
         }
 
-        // Criar pasta, se necessário
         if (!fs.existsSync(basePath)) {
           fs.mkdirSync(basePath, { recursive: true });
         }
 
-        // Salvar nova imagem
         const uniqueName = `${uuidv4()}${fileExtension}`;
         const uploadPath = path.join(basePath, uniqueName);
         await eventPicture.mv(uploadPath);
 
-        // Caminho acessível via rota /uploads
         eventPicturePath = `/uploads/event_pictures/${uniqueName}`;
       }
 
@@ -402,8 +400,7 @@ const eventController = {
       console.error(error);
       res.status(500).json({ message: errorMessages.ERROR_UPDATING_EVENT });
     }
-  }
-  ,
+  },
 
   /**
    * Approve an event
