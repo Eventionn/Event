@@ -521,7 +521,7 @@ const eventController = {
       }
 
       await eventService.deleteEvent(eventId);
-      res.status(204).send();
+      res.status(200).json({ message: "Event deleted successfully" });
 
     } catch (error) {
       console.error(error);
