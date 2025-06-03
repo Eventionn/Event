@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: eventservice-images-pv
+  labels:
+    app: eventservice
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data/eventservice-images"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: eventservice-images-pvc
+  labels:
+    app: eventservice
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi

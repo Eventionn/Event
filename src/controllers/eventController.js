@@ -43,12 +43,12 @@ const eventController = {
     }
   },
 
-    /**
-   * Get all events by page
-   * @route {GET} /eventsPaginated
-   * @returns {Array} List of events
-   * @description Fetches events from the database.
-   */
+  /**
+ * Get all events by page
+ * @route {GET} /eventsPaginated
+ * @returns {Array} List of events
+ * @description Fetches events from the database.
+ */
   async getEventsPaginated(req, res) {
     const lang = req.headers['accept-language'] || 'en';
     const errorMessages = loadErrorMessages(lang);
@@ -368,6 +368,11 @@ const eventController = {
 
         const uniqueName = `${uuidv4()}${fileExtension}`;
         const uploadPath = path.join(__dirname, '../public/uploads/event_pictures', uniqueName);
+        const dir = path.dirname(uploadPath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+
         await eventPicture.mv(uploadPath);
 
         eventPicturePath = `/uploads/event_pictures/${path.basename(uploadPath)}`;

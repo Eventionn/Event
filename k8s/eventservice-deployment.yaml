@@ -28,3 +28,10 @@ spec:
             value: "eventservice_pass"
           - name: DB_NAME
             value: "eventservice_db"
+        volumeMounts:
+          - name: eventservice-images
+            mountPath: /usr/src/app/public/uploads
+      volumes:
+        - name: eventservice-images
+          persistentVolumeClaim:
+            claimName: eventservice-images-pvc
