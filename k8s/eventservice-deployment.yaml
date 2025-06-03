@@ -30,7 +30,7 @@ spec:
             value: "eventservice_db"
         volumeMounts:
           - name: eventservice-images
-            mountPath: /usr/src/app/public/uploads
+            mountPath: /usr/src/app/public/uploads/event_pictures
       volumes:
         - name: eventservice-images
           persistentVolumeClaim:
