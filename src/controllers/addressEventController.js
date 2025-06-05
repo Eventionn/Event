@@ -1,6 +1,10 @@
 import addressEventService from '../services/addressEventService.js';
 import axios from 'axios';
 import routesEventService from '../services/routesEventService.js';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const loadErrorMessages = (lang) => {
   const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
