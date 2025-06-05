@@ -31,10 +31,6 @@ const addressEventController = {
     try {
       const addressEvents = await addressEventService.getAllAddressEvents();
 
-      if (addressEvents == null || addressEvents.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_ADDRESS_EVENTS_FOUND });
-      }
-
       res.status(200).json(addressEvents);
 
     } catch (error) {
