@@ -2,9 +2,7 @@ import addressEventService from '../services/addressEventService.js';
 import axios from 'axios';
 import routesEventService from '../services/routesEventService.js';
 import path from 'path';
-import axios from 'axios';
 import { fileURLToPath } from 'url';
-import path from 'path';
 import fs from 'fs';
 import https from 'https';
 
@@ -20,7 +18,6 @@ const loadErrorMessages = (lang) => {
 };
 
 const addressEventController = {
-
   /**
      * Get all address events
      * @route {GET} /address-events
@@ -47,7 +44,7 @@ const addressEventController = {
   },
 
   /**
-   * Get a specific address event by ID
+   * Get a specific address event by ID 
    * @route {GET} /address-events/:id
    * @param {string} id - The ID of the address event
    * @returns {Object} The address event object
