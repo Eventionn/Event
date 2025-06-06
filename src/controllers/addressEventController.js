@@ -86,7 +86,7 @@ const addressEventController = {
     try {
       const { road, roadNumber, postCode, localtown, event_id } = req.body;
 
-      if (!road || !roadNumber || !postCode || !localtown || !event_id) {
+      if (!road || typeof roadNumber !== 'number' || !postCode || !localtown || !event_id) {
         return res.status(400).json({ message: errorMessages.MISSING_REQUIRED_FIELDS });
       }
 
