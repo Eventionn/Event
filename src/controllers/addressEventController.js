@@ -1,6 +1,13 @@
 import addressEventService from '../services/addressEventService.js';
 import axios from 'axios';
 import routesEventService from '../services/routesEventService.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import https from 'https';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const loadErrorMessages = (lang) => {
   const errorMessagesPath = path.join(__dirname, '../config', 'errorMessages.json');
@@ -11,7 +18,6 @@ const loadErrorMessages = (lang) => {
 };
 
 const addressEventController = {
-
   /**
      * Get all address events
      * @route {GET} /address-events
@@ -25,10 +31,6 @@ const addressEventController = {
     try {
       const addressEvents = await addressEventService.getAllAddressEvents();
 
-      if (addressEvents == null || addressEvents.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_ADDRESS_EVENTS_FOUND });
-      }
-
       res.status(200).json(addressEvents);
 
     } catch (error) {
@@ -38,7 +40,7 @@ const addressEventController = {
   },
 
   /**
-   * Get a specific address event by ID
+   * Get a specific address event by ID 
    * @route {GET} /address-events/:id
    * @param {string} id - The ID of the address event
    * @returns {Object} The address event object

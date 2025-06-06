@@ -44,6 +44,30 @@ const eventController = {
   },
 
   /**
+ * Get all events by page
+ * @route {GET} /eventsPaginated
+ * @returns {Array} List of events
+ * @description Fetches events from the database.
+ */
+  async getEventsPaginated(req, res) {
+    const lang = req.headers['accept-language'] || 'en';
+    const errorMessages = loadErrorMessages(lang);
+
+    const status = req.query.status || null;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || null;
+
+    try {
+      const result = await eventService.getEventsPaginated(status, page, limit, search);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
+    }
+  },
+
+  /**
    * Get suspended events
    * @route {GET} /events/suspended
    * @returns {Array} List of suspended events
@@ -102,6 +126,57 @@ const eventController = {
       const events = await eventService.getUserEvents(userId);
 
       res.status(200).json(events);
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: errorMessages.ERROR_FETCHING_EVENTS });
+    }
+  },
+
+  /**
+   * Get user events
+   * @route {GET} /events/reputation/:id
+   * @param {string} id - The ID of the user
+   * @returns {Array} List of events associated with the user
+   * @description Fetches user reputarion associated with the current user based on their ID.
+   * If no events are found, it returns a 404 response.
+   */
+  async getUserReputation(req, res) {
+    const lang = req.headers['accept-language'] || 'en';
+    const errorMessages = loadErrorMessages(lang);
+
+    try {
+      const userId = req.params.id;
+
+      const events = await eventService.getUserEvents(userId);
+      const eventCount = events.length;
+      const agent = new https.Agent({ rejectUnauthorized: false });
+
+      let tickets = [];
+
+      if (eventCount > 0) {
+        const ticketArrays = await Promise.all(
+          events.map(event =>
+            axios
+              .get(`https://nginx-api-gateway:5010/userinevent/api/tickets/event/${event.eventID}`, { httpsAgent: agent })
+              .then(res => res.data)
+          )
+        );
+        tickets = ticketArrays.flat();
+      }
+
+      const feedbackTickets = tickets.filter(t => t.feedback && t.feedback.rating != null);
+      const feedbackCount = feedbackTickets.length;
+
+      const totalRating = feedbackTickets.reduce((sum, t) => sum + t.feedback.rating, 0);
+
+      const reputation = feedbackCount > 0 ? totalRating / feedbackCount : 0;
+
+      res.status(200).json({
+        eventCount,
+        reputation: parseFloat(reputation.toFixed(2)),
+        tickets
+      });
 
     } catch (error) {
       console.error(error);
@@ -172,7 +247,7 @@ const eventController = {
         return res.status(404).json({ message: errorMessages.USER_NOT_FOUND });
       }
 
-      let eventPicturePath = userExists.eventPicturePath;
+      let eventPicturePath;
 
       if (req.files && req.files.eventPicture) {
         const eventPicture = req.files.eventPicture;
@@ -183,15 +258,17 @@ const eventController = {
           return res.status(400).json({ message: errorMessages.INVALID_FILE_TYPE });
         }
 
-        if (eventPicturePath && fs.existsSync(path.join(__dirname, '../public', eventPicturePath))) {
-          fs.unlinkSync(path.join(__dirname, '../public', eventPicturePath));
+        const basePath = '/usr/src/app/public/uploads/event_pictures';
+
+        if (!fs.existsSync(basePath)) {
+          fs.mkdirSync(basePath, { recursive: true });
         }
 
         const uniqueName = `${uuidv4()}${fileExtension}`;
-        const uploadPath = path.join(__dirname, '../public/uploads/event_pictures', uniqueName);
+        const uploadPath = path.join(basePath, uniqueName);
         await eventPicture.mv(uploadPath);
 
-        eventPicturePath = `/uploads/event_pictures/${path.basename(uploadPath)}`;
+        eventPicturePath = `/uploads/event_pictures/${uniqueName}`;
       }
 
       const eventStatusPending = await eventStatusService.getEventStatusByStatus('Pendente');
@@ -287,15 +364,24 @@ const eventController = {
           return res.status(400).json({ message: errorMessages.INVALID_FILE_TYPE });
         }
 
-        if (eventPicturePath && fs.existsSync(path.join(__dirname, '../public', eventPicturePath))) {
-          fs.unlinkSync(path.join(__dirname, '../public', eventPicturePath));
+        const basePath = '/usr/src/app/public/uploads/event_pictures';
+
+        if (eventPicturePath) {
+          const oldPath = path.join(basePath, path.basename(eventPicturePath));
+          if (fs.existsSync(oldPath)) {
+            fs.unlinkSync(oldPath);
+          }
+        }
+
+        if (!fs.existsSync(basePath)) {
+          fs.mkdirSync(basePath, { recursive: true });
         }
 
         const uniqueName = `${uuidv4()}${fileExtension}`;
-        const uploadPath = path.join(__dirname, '../public/uploads/event_pictures', uniqueName);
+        const uploadPath = path.join(basePath, uniqueName);
         await eventPicture.mv(uploadPath);
 
-        eventPicturePath = `/uploads/event_pictures/${path.basename(uploadPath)}`;
+        eventPicturePath = `/uploads/event_pictures/${uniqueName}`;
       }
 
       const updatedEventData = {
@@ -446,7 +532,7 @@ const eventController = {
       }
 
       await eventService.deleteEvent(eventId);
-      res.status(204).send();
+      res.status(200).json({ message: "Event deleted successfully" });
 
     } catch (error) {
       console.error(error);

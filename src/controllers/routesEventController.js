@@ -29,10 +29,6 @@ const routesEventController = {
     try {
       const routesEvents = await routesEventService.getAllRoutesEvents();
 
-      if (routesEvents == null || routesEvents.length === 0) {
-        return res.status(404).json({ message: errorMessages.NO_ROUTES_EVENTS_FOUND });
-      }
-
       res.status(200).json(routesEvents);
 
     } catch (error) {

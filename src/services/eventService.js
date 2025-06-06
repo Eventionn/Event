@@ -31,6 +31,72 @@ const eventService = {
   },
 
   /**
+ * Get events by limit
+ * @returns {Promise<Array>} List of events
+ */
+  async getEventsPaginated(status = 'all', page = 1, limit = 10, search = null) {
+    const skip = (page - 1) * limit;
+
+    let statusFilter = {};
+    if (status === 'approved') {
+      statusFilter = {
+        eventStatus: {
+          eventStatusID: '22222222-2222-2222-2222-222222222222',
+        },
+      };
+    } else if (status === 'suspended') {
+      statusFilter = {
+        eventStatus: {
+          eventStatusID: '11111111-1111-1111-1111-111111111111',
+        },
+      };
+    }
+
+    const searchFilter = search
+      ? {
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }
+      : {};
+
+    const where = {
+      AND: [
+        ...Object.keys(statusFilter).length ? [statusFilter] : [],
+        ...Object.keys(searchFilter).length ? [searchFilter] : [],
+      ],
+    };
+
+    const total = await prisma.event.count({ where });
+
+    const data = await prisma.event.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        eventStatus: true,
+        addressEvents: {
+          include: {
+            routes: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  },
+
+  /**
    * Get suspended events
    * @returns {Promise<Array>} List of all events
    */
