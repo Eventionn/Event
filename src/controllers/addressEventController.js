@@ -93,7 +93,7 @@ const addressEventController = {
 
       // const localtownExists = await axios.get(`http://locationservice:5005/api/location/${localtown}`);
       //const localtownExists = await axios.get(`http://nginx-api-gateway:5010/location/api/location/${localtown}`);
-      const localtownExists = await axios.get(`http://nginx-api-gateway:5010/location/api/location/${localtown}`, { httpsAgent: agent });  //https api gateway
+      const localtownExists = await axios.get(`https://nginx-api-gateway:5010/location/api/location/${localtown}`, { httpsAgent: agent });  //https api gateway
 
       if (!localtownExists) {
         return res.status(404).json({ message: errorMessages.LOCATION_NOT_FOUND });
