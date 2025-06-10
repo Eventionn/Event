@@ -337,8 +337,8 @@ const eventController = {
 
       // Devolve novo token
       res.status(201).json({
-        event: newEvent,
-        ...(newToken && { newToken }) // só inclui se existir
+        ...newEvent,
+        ...(newToken && { newToken }) // inclui se existir
       });
 
     } catch (error) {
