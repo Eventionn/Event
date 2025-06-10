@@ -331,6 +331,7 @@ const eventController = {
           userType: updatedUser.usertype_id,
         };
 
+        newToken = jwt.sign(jwtPayload, process.env.SECRET_KEY, { expiresIn: '1d' });
       }
 
       // Devolve novo token
