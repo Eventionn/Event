@@ -294,6 +294,8 @@ const eventController = {
         usertype_id: '123e4567-e89b-12d3-a456-426614174001'
       };
 
+      let newToken = null;
+
       if (user && user.data.usertype_id === '2c6aab42-7274-424e-8c10-e95441cb95c3') {
         //   await axios.put(`http://localhost:5001/api/users/${userId}`, updatedUser, { httpsAgent: agent },
         //     {
@@ -320,9 +322,22 @@ const eventController = {
         //     }
         //   }
         // );
+
+        // Gera novo token para novo tipo de anunciante
+        const jwtPayload = {
+          userID: updatedUser.userID,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          userType: updatedUser.usertype_id,
+        };
+
       }
 
-      res.status(201).json(newEvent);
+      // Devolve novo token
+      res.status(201).json({
+        event: newEvent,
+        ...(newToken && { newToken }) // só inclui se existir
+      });
 
     } catch (error) {
       console.error(error);
