@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import routes from './routes/routes.js';
 import swaggerUi from 'swagger-ui-express';
 import https from 'https';
+import { scheduleExpireEventsJob } from './jobs/endEventsJob';
 
 const app = express();
 dotenv.config();
@@ -42,6 +43,8 @@ app.get('/', (req, res) => {
 //app.listen(PORT, () => {
 //  console.log(`listening on port ${PORT}`);
 //});
+
+scheduleExpireEventsJob();
 
 // Criar servidor HTTPS
 https.createServer({ 

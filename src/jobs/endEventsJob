@@ -1,0 +1,49 @@
+import cron from 'node-cron';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+const FINALIZED_STATUS_ID = '33333333-3333-3333-3333-333333333333';
+const VALID_STATUS_IDS = [
+    '11111111-1111-1111-1111-111111111111',
+    '22222222-2222-2222-2222-222222222222',
+];
+
+export const scheduleExpireEventsJob = () => {
+    cron.schedule('*/1 * * * *', async () => {
+        console.log('[Job] Verificando eventos expirados...');
+
+        try {
+            const now = new Date();
+
+            const expiredEvents = await prisma.event.findMany({
+                where: {
+                    endAt: {
+                        lt: now,
+                    },
+                    eventstatus_id: {
+                        in: VALID_STATUS_IDS,
+                    },
+                },
+            });
+
+            if (expiredEvents.length === 0) {
+                console.log('[Job] Nenhum evento expirado encontrado.');
+                return;
+            }
+
+            const updatePromises = expiredEvents.map(event =>
+                prisma.event.update({
+                    where: { eventID: event.eventID },
+                    data: { eventstatus_id: FINALIZED_STATUS_ID },
+                })
+            );
+
+            await Promise.all(updatePromises);
+
+            console.log(`[Job] ${expiredEvents.length} evento(s) finalizado(s).`);
+        } catch (error) {
+            console.error('[Job] Erro ao finalizar eventos expirados:', error);
+        }
+    });
+};
