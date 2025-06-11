@@ -10,8 +10,8 @@ const VALID_STATUS_IDS = [
 ];
 
 export const scheduleExpireEventsJob = () => {
-    cron.schedule('*/1 * * * *', async () => {
-        console.log('[Job] Verificando eventos expirados...');
+    cron.schedule('0 3 * * *', async () => {
+        console.log('[Job] Checking expired events...');
 
         try {
             const now = new Date();
@@ -28,7 +28,7 @@ export const scheduleExpireEventsJob = () => {
             });
 
             if (expiredEvents.length === 0) {
-                console.log('[Job] Nenhum evento expirado encontrado.');
+                console.log('[Job] No expired events found.');
                 return;
             }
 
@@ -41,9 +41,9 @@ export const scheduleExpireEventsJob = () => {
 
             await Promise.all(updatePromises);
 
-            console.log(`[Job] ${expiredEvents.length} evento(s) finalizado(s).`);
+            console.log(`[Job] ${expiredEvents.length} event(s) completed).`);
         } catch (error) {
-            console.error('[Job] Erro ao finalizar eventos expirados:', error);
+            console.error('[Job] Error finalizing expired events:', error);
         }
     });
 };
